@@ -29,10 +29,26 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password_confirm']:
-            raise serializers.ValidationError("Password fields didn't match.")
+        # Check if password fields are provided
+        password = attrs.get('password')
+        password_confirm = attrs.get('password_confirm')
+        
+        # If one password field is provided, both must be provided
+        if password or password_confirm:
+            if not password:
+                raise serializers.ValidationError("Password is required when password_confirm is provided.")
+            if not password_confirm:
+                raise serializers.ValidationError("Password confirmation is required when password is provided.")
+            if password != password_confirm:
+                raise serializers.ValidationError("Password fields didn't match.")
+        
+        # For user creation, password is required
+        if not self.instance and not password:
+            raise serializers.ValidationError("Password is required for user creation.")
+            
         return attrs
-
+    
+    
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         user = User.objects.create_user(**validated_data)
