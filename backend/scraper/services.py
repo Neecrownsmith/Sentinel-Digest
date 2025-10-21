@@ -78,7 +78,7 @@ def scrape_article(url):
             container = soup.find("article")
         elif site == 'bellanaija.com':
             container = soup.find("div", id="mvp-article-cont")
-        elif site == 'dailytrust.ng':
+        elif site == 'dailytrust.com':
             container = soup.find("div", class_ = "article-container")
         elif site == 'guardian.ng':
             container = soup.find("section", class_="main-content").article

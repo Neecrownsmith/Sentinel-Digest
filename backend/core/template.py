@@ -74,3 +74,30 @@ def get_password_reset_email_template(reset_link):
         </body>
     </html>
     """
+
+def get_failed_rewriter_template(log_id, error):
+    """Template for rewriter service failure notification"""
+    return f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; color: #333;">
+            <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; border-radius: 4px;">
+                <h3 style="color: #721c24; margin: 0 0 10px 0;">Rewriter Service Error Detected</h3>
+                <p style="margin: 5px 0;"><strong>Log ID:</strong> {log_id}</p>
+                <p style="margin: 5px 0;"><strong>Error:</strong> <code style="background: #f5c6cb; padding: 2px 6px; border-radius: 3px;">{str(error)}</code></p>
+                <hr style="border: none; border-top: 1px solid #dc3545; margin: 10px 0;">
+                <p style="margin: 5px 0; color: #721c24;">
+                    <strong>Possible Causes:</strong>
+                </p>
+                <ul style="margin: 5px 0; padding-left: 20px; color: #666;">
+                    <li>API request failure</li>
+                    <li>Invalid input data</li>
+                    <li>Service timeout</li>
+                    <li>Unexpected server error</li>
+                </ul>
+                <p style="margin: 10px 0 5px 0; font-size: 12px; color: #721c24;">
+                    <strong>Action Required:</strong> Review and resolve the issue with the rewriter service
+                </p>
+            </div>
+        </body>
+    </html>
+    """
