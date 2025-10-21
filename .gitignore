@@ -41,3 +41,4 @@ dist/
 *.egg-info/
 
 *.ipynb
+test_smtp.py
