@@ -63,7 +63,7 @@ INSTALLED_APPS = [
     'articles',
     'rewriter',
     'scraper',
-    
+    'social_media'
 
 ]
 

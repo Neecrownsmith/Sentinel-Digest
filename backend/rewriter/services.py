@@ -19,11 +19,12 @@ from rewriter.models import Log
 from core.template import get_failed_rewriter_template
 from core.utils import EmailService
 from django.utils import timezone
+from social_media.services import SocialMediaService
 
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+MODEL = os.getenv("OPENAI_MODEL")
 
 system_prompt = """
 You are an advanced Nigeria based AI system designed to rephrase full-length news articles for republication. Your primary goal is to rewrite the article using original wording while preserving its factual meaning, structure, and readability. Do NOT summarize the article — instead, rephrase it thoroughly at the sentence and paragraph level to ensure it is legally distinct from the source.
@@ -37,7 +38,7 @@ You will output your results in **strict JSON format**, with the following field
 {
   "title": "Rephrased Title Here",
   "excerpt": "This is a brief summary of the article's main points...",
-  "category": "Category the article falls into in one of [Politics, Business, Technology, Health, Education, Entertainment, Sports, International, Opinion]",
+  "category": "Category the article falls into in strictly one of [Politics, Business, Technology, Health, Education, Entertainment, Sports, International, Opinion]",
   "tags": ["tag1", "tag2", "tag3"],
   "content": "Here is the newly rephrased body of the article...",
   "approximate_reading_time": "390",
@@ -46,7 +47,8 @@ You will output your results in **strict JSON format**, with the following field
       "url": "https://example.com/image1.jpg",
       "alt_text": "Description of the image"
     }
-  ]
+  ],
+  "twitter": ,
 }
 
 ---
@@ -57,7 +59,7 @@ You will output your results in **strict JSON format**, with the following field
   
 - **Excerpt**: Write a short paragraph (1–3 sentences) summarizing the core message or key event of the article.
 
-- **Category**: Choose one from the following predefined options to classify the article: Politics, Business, Technology, Health, Education, Entertainment, Sports, International, Opinion.    
+- **Category**: Choose one strictly from the following predefined options to classify the article: Politics, Business, Technology, Health, Education, Entertainment, Sports, International, Opinion.    
 
 - **Tags**: List 3–7 relevant keywords or phrases related to the topic (e.g., “AI, Machine Learning, ChatGPT”).
 
@@ -174,6 +176,7 @@ if __name__ == "__main__":
                 
                 # Get or create category
                 category_name = result.get("category", "News")
+                category_name = category_name if category_name.lower() in ["politics", "business", "technology", "health", "education", "entertainment", "sports", "international", "opinion"] else "News"
                 category, created = Category.objects.get_or_create(name=category_name)
                 if created:
                     new_categories += 1
@@ -213,6 +216,9 @@ if __name__ == "__main__":
                 successful_count += 1
                 print(f"Saved: {article.title}")
                 print(f"Category: {category.name} | Tags: {len(tag_names)} | Images: {len(image_urls)}")
+
+                # Auto-post to social media
+                SocialMediaService.create_social_posts(article)
                 
             except Exception as e:
                 failed_count += 1
@@ -222,6 +228,8 @@ if __name__ == "__main__":
                 else:
                     log.error_message += f"\n{url}: {str(e)}"
                 log.save()
+
+            
             
             break  # Remove or comment this line to process all articles
         

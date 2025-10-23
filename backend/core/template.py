@@ -101,3 +101,50 @@ def get_failed_rewriter_template(log_id, error):
         </body>
     </html>
     """
+
+def get_failed_social_post_template(platform_name, error):
+    """Template for social media posting failure notification"""
+    return f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; color: #333;">
+            <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; border-radius: 4px;">
+                <h3 style="color: #721c24; margin: 0 0 10px 0;">Social Media Posting Error Detected</h3>
+                <p style="margin: 5px 0;"><strong>Platform:</strong> {platform_name}</p>
+                <p style="margin: 5px 0;"><strong>Error:</strong> <code style="background: #f5c6cb; padding: 2px 6px; border-radius: 3px;">{str(error)}</code></p>
+                <hr style="border: none; border-top: 1px solid #dc3545; margin: 10px 0;">
+                <p style="margin: 5px 0; color: #721c24;">
+                    <strong>Possible Causes:</strong>
+                </p>
+                <ul style="margin: 5px 0; padding-left: 20px; color: #666;">
+                    <li>Authentication failure</li>
+                    <li>API rate limits exceeded</li>
+                    <li>Invalid post content</li>
+                    <li>Network issues</li>
+                </ul>
+                <p style="margin: 10px 0 5px 0; font-size: 12px; color: #721c24;">
+                    <strong>Action Required:</strong> Review and resolve the issue with social media posting
+                </p>
+            </div>
+        </body>
+    </html>
+    """
+
+def get_unimplemented_social_post_platform_template(platform_name):
+    """Template for unimplemented social media posting platform"""
+    return f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; color: #333;">
+            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
+                <h3 style="color: #856404; margin: 0 0 10px 0;">Social Media Posting Not Implemented</h3>
+                <p style="margin: 5px 0;"><strong>Platform:</strong> {platform_name}</p>
+                <p style="margin: 5px 0; color: #666;">
+                    Posting functionality for this social media platform has not been implemented yet.
+                </p>
+                <hr style="border: none; border-top: 1px solid #ffc107; margin: 10px 0;">
+                <p style="margin: 5px 0; font-size: 12px; color: #856404;">
+                    <strong>Action Required:</strong> Add posting logic for this platform in services.py
+                </p>
+            </div>
+        </body>
+    </html>
+    """
