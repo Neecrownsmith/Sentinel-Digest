@@ -61,6 +61,7 @@ class Article(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_published = models.BooleanField(default=True)
+    publication_count = models.PositiveIntegerField(default=0)
 
     def save(self, *args, **kwargs):
         # Fixed: Use 'slug' instead of 'content_url'

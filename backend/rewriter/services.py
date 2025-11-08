@@ -20,6 +20,7 @@ from core.template import get_failed_rewriter_template
 from core.utils import EmailService
 from django.utils import timezone
 from social_media.services import SocialMediaService
+from similarity.checker import check_duplicate
 
 load_dotenv()
 
@@ -124,6 +125,10 @@ def process_article(container):
     
     return result
 
+def check_if_duplicate(result):
+    result = check_duplicate({'content': result.get("content", "")}, lookback_days=3)
+    return result
+
 
 if __name__ == "__main__":
     
@@ -136,6 +141,7 @@ if __name__ == "__main__":
     successful_count = 0
     failed_count = 0
     skipped_count = 0
+    duplicate_count = 0  # Track duplicates separately
     total_tokens = 0
     new_categories = 0
     new_tags = 0
@@ -166,9 +172,34 @@ if __name__ == "__main__":
                     print(f"Failed to scrape article!")
                     failed_count += 1
                     continue
+
                 
                 # Process with AI
                 result = process_article(container)
+
+                duplicate_check = check_if_duplicate(result)
+
+                if duplicate_check['is_duplicate']:
+                    print(f"DUPLICATE DETECTED!")
+                    print(f"Similarity: {duplicate_check['similarity_score']:.2%}")
+                    print(f"Similar to: {duplicate_check['similar_article_title']}")
+                    
+                    # Increment publication_count for the similar article
+                    similar_article = duplicate_check['similar_article']
+                    
+                    # Check if publication_count field exists
+                    if hasattr(similar_article, 'publication_count'):
+                        similar_article.publication_count += 1
+                        similar_article.save(update_fields=['publication_count'])
+                        print(f"Incremented publication_count to {similar_article.publication_count}")
+                    else:
+                        print(f"Warning: Article model doesn't have 'publication_count' field")
+                    
+                    # Create ScrapedArticle entry to mark as processed
+                    ScrapedArticle.objects.get_or_create(url=url)
+                    
+                    duplicate_count += 1
+                    continue
                 
                 # Track tokens
                 if '_token_usage' in result:
@@ -214,15 +245,15 @@ if __name__ == "__main__":
                     total_images += 1
                 
                 successful_count += 1
-                print(f"Saved: {article.title}")
-                print(f"Category: {category.name} | Tags: {len(tag_names)} | Images: {len(image_urls)}")
+                print(f"✓ Saved: {article.title}")
+                print(f"  Category: {category.name} | Tags: {len(tag_names)} | Images: {len(image_urls)}")
 
                 # Auto-post to social media
                 SocialMediaService.create_social_posts(article)
                 
             except Exception as e:
                 failed_count += 1
-                print(f"Failed to process article: {str(e)}")
+                print(f"✗ Failed to process article: {str(e)}")
                 if not log.error_message:
                     log.error_message = f"First error at {url}: {str(e)}"
                 else:
@@ -231,18 +262,23 @@ if __name__ == "__main__":
 
             
             
-            break  # Remove or comment this line to process all articles
+            # break  # Remove or comment this line to process all articles
         
         # Update log with final stats
         log.end_time = timezone.now()
         log.total_urls_processed = len(urls)
         log.successful_articles = successful_count
         log.failed_articles = failed_count
-        log.skipped_articles = skipped_count
+        log.skipped_articles = skipped_count + duplicate_count  # Include duplicates in skipped
         log.new_categories_created = new_categories
         log.new_tags_created = new_tags
         log.total_images_saved = total_images
         log.total_tokens_used = total_tokens
+        
+        # Add duplicate info to log
+        if duplicate_count > 0:
+            dup_msg = f"\n{duplicate_count} duplicate articles detected (publication_count incremented)"
+            log.error_message = (log.error_message or "") + dup_msg
         
         # Determine final status
         if successful_count == len(urls):
@@ -254,8 +290,17 @@ if __name__ == "__main__":
         
         log.calculate_duration()
         log.save()
-        print(f"\nRewriter process completed. Log ID: {log.log_id} with status {log.status.upper()}")
-        print(f"\nTotal of {log.total_urls_processed} urls was processed in {log.time_taken}s")
+        
+        print(f"\n{'='*70}")
+        print(f"Rewriter process completed. Log ID: {log.log_id}")
+        print(f"Status: {log.status.upper()}")
+        print(f"{'='*70}")
+        print(f"Successful: {successful_count}")
+        print(f"Failed: {failed_count}")
+        print(f"Skipped: {skipped_count}")
+        print(f"Duplicates: {duplicate_count}")
+        print(f"Time taken: {log.time_taken}s")
+        print(f"{'='*70}\n")
 
     except Exception as e:
         # Handle catastrophic failure
@@ -267,6 +312,3 @@ if __name__ == "__main__":
 
         message = get_failed_rewriter_template(log.log_id, e)
         EmailService.send_email_to_admins(message, subject=f"Rewriter Failed: Log {log.log_id}", is_html=True)
-
-
-

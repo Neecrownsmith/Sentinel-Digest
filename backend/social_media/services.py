@@ -40,9 +40,9 @@ class SocialMediaService:
         Excerpt: {article.excerpt}
         Category: {article.category.name if article.category else 'News'}
         Tags: {', '.join([tag.name for tag in article.tags.all()])}
-        
-        Create captions for:
-        1. Twitter/X (280 characters max, include 2-3 hashtags)
+
+        Create captions/hooks for:
+        1. Twitter/X (250 characters max, include 2-3 hashtags)
         2. Facebook (engaging, can be longer, include call-to-action)
         3. LinkedIn (professional tone, industry-focused)
         4. WhatsApp (conversational, brief with emoji)
