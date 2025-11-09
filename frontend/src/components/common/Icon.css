@@ -1,0 +1,19 @@
+/* Icon Base Styles */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon svg {
+  display: block;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .icon {
+    transition: none;
+  }
+}

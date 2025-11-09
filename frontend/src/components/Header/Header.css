@@ -494,7 +494,11 @@
     display: none;
   }
 }
-
+@media (max-width: 900px) {
+  .cta-btn {
+    display: none;
+  }
+}
 @media (max-width: 768px) {
   /* Hide "Sections" text on mobile, show only icon */
   .menu-text {
@@ -515,9 +519,6 @@
     padding: 8px;
   }
   
-  .cta-btn {
-    display: none;
-  }
   
   .logo {
     height: 38px;

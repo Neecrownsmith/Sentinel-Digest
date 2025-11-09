@@ -1,27 +1,26 @@
 import Logo from '../../assets/Sentinel Digest.png';
 import './Header.css';
-import { useState } from 'react';
+import { useEffect } from 'react';
+import useToggle from '../../hooks/useToggle';
+import useFormInput from '../../hooks/useFormInput';
+import Icon from '../common/Icon';
+import { navigationLinks } from '../../config/navigation';
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [isMenuOpen, toggleMenu] = useToggle(false);
+  const [isSearchOpen, toggleSearch, , closeSearch] = useToggle(false);
+  const [searchQuery, handleSearchChange, resetSearch] = useFormInput('');
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const toggleSearch = () => {
-    setIsSearchOpen(!isSearchOpen);
-    if (!isSearchOpen) {
-      // Focus on search input when opened
+  // Focus on search input when opened and reset when closed
+  useEffect(() => {
+    if (isSearchOpen) {
       setTimeout(() => {
         document.getElementById('search-input')?.focus();
       }, 100);
     } else {
-      setSearchQuery('');
+      resetSearch();
     }
-  };
+  }, [isSearchOpen, resetSearch]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -44,12 +43,10 @@ const Header = () => {
       <header className="header-top">
         <div className="header-container">
           <div className="header-left">
-            <button className="menu-btn" onClick={toggleMenu}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-              <path fillRule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
-            </svg>
-            <span className="menu-text">Sections</span>
-          </button>
+            <button className="menu-btn" onClick={toggleMenu} aria-label="Toggle menu">
+              <Icon name="menu" size="24px" />
+              <span className="menu-text">Sections</span>
+            </button>
             <span className="header-date">{getCurrentDate()}</span>
           </div>
           
@@ -61,9 +58,7 @@ const Header = () => {
             <button className="cta-btn">Subscribe Now</button>
             <button className="login-btn">LOG IN</button>
             <button className="search-btn" onClick={toggleSearch} aria-label="Toggle search">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-              </svg>
+              <Icon name="search" size="20px" />
             </button>
           </div>
         </div>
@@ -77,18 +72,14 @@ const Header = () => {
               className="search-input"
               placeholder="Search articles, topics, authors..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               aria-label="Search"
             />
             <button type="submit" className="search-submit-btn" aria-label="Submit search">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-              </svg>
+              <Icon name="search" size="20px" />
             </button>
-            <button type="button" className="search-close-btn" onClick={toggleSearch} aria-label="Close search">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-              </svg>
+            <button type="button" className="search-close-btn" onClick={closeSearch} aria-label="Close search">
+              <Icon name="close" size="20px" />
             </button>
           </form>
         </div>
@@ -97,28 +88,19 @@ const Header = () => {
       <nav className={`header-nav ${isMenuOpen ? 'menu-open' : ''}`}>
         <div className="nav-container">
           <a href="#" className="nav-link">Home</a>
-          <a href="#" className="nav-link">News</a>
-          <a href="#" className="nav-link">Politics</a>
-          <a href="#" className="nav-link">Business</a>
-          <a href="#" className="nav-link">Technology</a>
-          <a href="#" className="nav-link">Health</a>
-          <a href="#" className="nav-link">Education</a>
-          <a href="#" className="nav-link">Entertainment</a>
-          <a href="#" className="nav-link">Sports</a>
-          <a href="#" className="nav-link">International</a>
-          <a href="#" className="nav-link">Opinion</a>
+          {navigationLinks.map((link) => (
+            <a key={link.id} href={link.href} className="nav-link">
+              {link.label}
+            </a>
+          ))}
           <span className="nav-divider">|</span>
           <a href="#" className="nav-link nav-link-dropdown">
             Jobs 
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-            </svg>
+            <Icon name="chevron-down" size="12px" />
           </a>
           <a href="#" className="nav-link nav-link-dropdown">
             Games 
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-            </svg>
+            <Icon name="chevron-down" size="12px" />
           </a>
         </div>
       </nav>
