@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
  * @param {number} threshold - Scroll threshold in pixels to show the button
  * @returns {[boolean, function]} - [showButton, scrollToTop]
  */
-const useScrollToTop = (threshold = 500) => {
+function useScrollToTop(threshold = 500){
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
@@ -25,6 +25,6 @@ const useScrollToTop = (threshold = 500) => {
   }, []);
 
   return [showButton, scrollToTop];
-};
+}
 
 export default useScrollToTop;

@@ -12,7 +12,7 @@ import './Button.css';
  * @param {boolean} disabled - Disabled state
  * @param {string} ariaLabel - Accessibility label
  */
-const Button = ({ 
+function Button({ 
   variant = 'primary', 
   size = 'medium', 
   children, 
@@ -22,7 +22,7 @@ const Button = ({
   disabled = false,
   ariaLabel,
   ...rest 
-}) => {
+}) {
   const buttonClass = `btn btn--${variant} btn--${size} ${className}`.trim();
 
   return (
@@ -37,6 +37,6 @@ const Button = ({
       {children}
     </button>
   );
-};
+}
 
 export default Button;

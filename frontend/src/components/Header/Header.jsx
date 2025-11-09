@@ -6,7 +6,7 @@ import useFormInput from '../../hooks/useFormInput';
 import Icon from '../common/Icon';
 import { navigationLinks } from '../../config/navigation';
 
-const Header = () => {
+function Header() {
   const [isMenuOpen, toggleMenu] = useToggle(false);
   const [isSearchOpen, toggleSearch, , closeSearch] = useToggle(false);
   const [searchQuery, handleSearchChange, resetSearch] = useFormInput('');
@@ -106,6 +106,6 @@ const Header = () => {
       </nav>
     </>
   );
-};
+}
 
 export default Header;

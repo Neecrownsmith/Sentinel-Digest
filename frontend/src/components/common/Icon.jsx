@@ -9,14 +9,14 @@ import './Icon.css';
  * @param {string} className - Additional CSS classes
  * @param {string} ariaLabel - Accessibility label
  */
-const Icon = ({ 
+function Icon({ 
   name, 
   size = 'medium', 
   color = 'currentColor', 
   className = '', 
   ariaLabel,
   ...rest 
-}) => {
+}) {
   const sizeMap = {
     small: '16px',
     medium: '24px',
@@ -99,6 +99,6 @@ const Icon = ({
       {icons[name] || null}
     </span>
   );
-};
+}
 
 export default Icon;

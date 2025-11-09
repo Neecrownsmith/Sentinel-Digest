@@ -5,7 +5,7 @@ import { useState, useCallback } from 'react';
  * @param {string|null} initialSection - Initially open section
  * @returns {[string|null, function]} - [openSection, toggleSection]
  */
-const useAccordion = (initialSection = null) => {
+function useAccordion(initialSection = null){
   const [openSection, setOpenSection] = useState(initialSection);
 
   const toggleSection = useCallback((sectionName) => {
@@ -13,6 +13,6 @@ const useAccordion = (initialSection = null) => {
   }, []);
 
   return [openSection, toggleSection];
-};
+}
 
 export default useAccordion;

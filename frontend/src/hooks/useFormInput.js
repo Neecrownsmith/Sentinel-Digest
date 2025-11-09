@@ -5,7 +5,7 @@ import { useState, useCallback } from 'react';
  * @param {string} initialValue - Initial input value
  * @returns {[string, function, function]} - [value, handleChange, reset]
  */
-const useFormInput = (initialValue = '') => {
+function useFormInput(initialValue = ''){
   const [value, setValue] = useState(initialValue);
 
   const handleChange = useCallback((e) => {
@@ -17,6 +17,6 @@ const useFormInput = (initialValue = '') => {
   }, [initialValue]);
 
   return [value, handleChange, reset];
-};
+}
 
 export default useFormInput;

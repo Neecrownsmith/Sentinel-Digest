@@ -5,7 +5,7 @@ import { useState, useCallback } from 'react';
  * @param {boolean} initialValue - Initial state value
  * @returns {[boolean, function, function, function]} - [value, toggle, setTrue, setFalse]
  */
-const useToggle = (initialValue = false) => {
+function useToggle(initialValue = false) {
   const [value, setValue] = useState(initialValue);
 
   const toggle = useCallback(() => {
@@ -21,6 +21,6 @@ const useToggle = (initialValue = false) => {
   }, []);
 
   return [value, toggle, setTrue, setFalse];
-};
+}
 
 export default useToggle;

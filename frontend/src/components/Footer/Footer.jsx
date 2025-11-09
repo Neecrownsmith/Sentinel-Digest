@@ -7,7 +7,7 @@ import useFormInput from '../../hooks/useFormInput';
 import Icon from '../common/Icon';
 import { footerSections, socialLinks, legalLinks, copyrightText } from '../../config/footer';
 
-const Footer = () => {
+function Footer() {
   const [email, handleEmailChange, resetEmail] = useFormInput('');
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [subscribeMessage, setSubscribeMessage] = useState('');
@@ -200,6 +200,6 @@ const Footer = () => {
       </div>
     </footer>
   );
-};
+}
 
 export default Footer;
