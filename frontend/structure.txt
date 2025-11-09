@@ -1,0 +1,40 @@
+latimes-clone/
+├── public/
+│   ├── index.html
+│   └── favicon.ico
+│
+├── src/
+│   ├── assets/                  # Images, icons, fonts
+│   │   ├── images/
+│   │   └── logos/
+│   │
+│   ├── components/              # Reusable components
+│   │   ├── Header.jsx
+│   │   ├── Footer.jsx
+│   │   ├── NewsCard.jsx
+│   │   ├── HeroSection.jsx
+│   │   └── Sidebar.jsx
+│   │
+│   ├── layouts/                 # Layout wrappers
+│   │   ├── MainLayout.jsx
+│   │   └── ArticleLayout.jsx
+│   │
+│   ├── pages/                   # Pages for routing
+│   │   ├── HomePage.jsx
+│   │   ├── SportsPage.jsx
+│   │   ├── WorldPage.jsx
+│   │   ├── OpinionPage.jsx
+│   │   └── NotFoundPage.jsx
+│   │
+│   ├── styles/                  # Global & component styles
+│   │   ├── globals.css
+│   │   ├── Header.css
+│   │   ├── Footer.css
+│   │   └── NewsCard.css
+│   │
+│   ├── App.jsx                  # Main App component
+│   └── main.jsx                 # Entry point
+│
+├── package.json
+├── vite.config.js               # Vite configuration
+└── tailwind.config.js           # (If using Tailwind)
