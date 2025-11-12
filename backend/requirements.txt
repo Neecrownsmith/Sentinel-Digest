@@ -3,9 +3,17 @@ Django
 django-cors-headers
 djangorestframework
 djangorestframework-simplejwt
+django-filter
 PyJWT
 pytz
 sqlparse
 psycopg2-binary
 python-dotenv
 requests
+celery
+redis
+django-celery-beat
+django-redis
+django-allauth
+dj-rest-auth
+cryptography

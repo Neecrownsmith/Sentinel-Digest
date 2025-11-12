@@ -1,6 +1,7 @@
 import './Footer.css';
-import Logo from '../../assets/Sentinel Digest.png';
+import Logo from '../../assets/Sentinel-Digest-black-bg.png';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import useScrollToTop from '../../hooks/useScrollToTop';
 import useAccordion from '../../hooks/useAccordion';
 import useFormInput from '../../hooks/useFormInput';
@@ -72,7 +73,6 @@ function Footer() {
           <button className="footer-subscribe-btn" aria-label="Subscribe for unlimited access">
             Subscribe for unlimited access
           </button>
-          <a href="#" className="footer-link" aria-label="View site map">Site Map</a>
           
           {/* Language Selector */}
           <select className="language-selector" aria-label="Select language">
@@ -82,68 +82,44 @@ function Footer() {
           </select>
         </div>
 
-        {/* Services Column */}
-        <div className={`footer-column ${openSection === 'services' ? 'open' : ''}`}>
-          <h3 
-            className="footer-column-title" 
-            onClick={() => toggleSection('services')}
-            role="button"
-            tabIndex={0}
-            aria-expanded={openSection === 'services'}
-          >
-            Our Services
-            <span className="accordion-icon">{openSection === 'services' ? '−' : '+'}</span>
-          </h3>
-          <div className="footer-column-content">
-            <a href="#" className="footer-link" aria-label="eNewspaper">eNewspaper</a>
-            <a href="#" className="footer-link" aria-label="Find/Post Jobs">Find/Post Jobs</a>
-            <a href="#" className="footer-link" aria-label="Place an Ad">Place an Ad</a>
-            <a href="#" className="footer-link" aria-label="Media Kit">Media Kit</a>
-            <a href="#" className="footer-link" aria-label="Invest Now">Invest Now</a>
+        {/* Dynamic Footer Sections from Config */}
+        {Object.entries(footerSections).map(([key, section]) => (
+          <div key={key} className={`footer-column ${openSection === key ? 'open' : ''}`}>
+            <h3 
+              className="footer-column-title" 
+              onClick={() => toggleSection(key)}
+              role="button"
+              tabIndex={0}
+              aria-expanded={openSection === key}
+            >
+              {section.title}
+              <span className="accordion-icon">{openSection === key ? '−' : '+'}</span>
+            </h3>
+            <div className="footer-column-content">
+              {section.links.map((link) => (
+                link.isRouter ? (
+                  <Link 
+                    key={link.label} 
+                    to={link.href} 
+                    className="footer-link" 
+                    aria-label={link.label}
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a 
+                    key={link.label} 
+                    href={link.href} 
+                    className="footer-link" 
+                    aria-label={link.label}
+                  >
+                    {link.label}
+                  </a>
+                )
+              ))}
+            </div>
           </div>
-        </div>
-
-        {/* Features Column */}
-        <div className={`footer-column ${openSection === 'features' ? 'open' : ''}`}>
-          <h3 
-            className="footer-column-title" 
-            onClick={() => toggleSection('features')}
-            role="button"
-            tabIndex={0}
-            aria-expanded={openSection === 'features'}
-          >
-            Features
-            <span className="accordion-icon">{openSection === 'features' ? '−' : '+'}</span>
-          </h3>
-          <div className="footer-column-content">
-            <a href="#" className="footer-link" aria-label="Crossword">Crossword</a>
-            <a href="#" className="footer-link" aria-label="Obituaries">Obituaries</a>
-            <a href="#" className="footer-link" aria-label="Recipes">Recipes</a>
-            <a href="#" className="footer-link" aria-label="Guides">Guides</a>
-            <a href="#" className="footer-link" aria-label="Store">Store</a>
-          </div>
-        </div>
-
-        {/* Company Column */}
-        <div className={`footer-column ${openSection === 'company' ? 'open' : ''}`}>
-          <h3 
-            className="footer-column-title" 
-            onClick={() => toggleSection('company')}
-            role="button"
-            tabIndex={0}
-            aria-expanded={openSection === 'company'}
-          >
-            Company
-            <span className="accordion-icon">{openSection === 'company' ? '−' : '+'}</span>
-          </h3>
-          <div className="footer-column-content">
-            <a href="#" className="footer-link" aria-label="About/Contact">About/Contact</a>
-            <a href="#" className="footer-link" aria-label="For the Record">For the Record</a>
-            <a href="#" className="footer-link" aria-label="Careers">Careers</a>
-            <a href="#" className="footer-link" aria-label="Manage Subscription">Manage Subscription</a>
-            <a href="#" className="footer-link" aria-label="Reprints and Permissions">Reprints and Permissions</a>
-          </div>
-        </div>
+        ))}
 
         {/* Social Media */}
         <div className="footer-social">
@@ -185,16 +161,18 @@ function Footer() {
           <div className="footer-bottom-links">
             {legalLinks.map((link, index) => (
               <span key={link.label}>
-                <a href={link.href} className="footer-bottom-link" aria-label={link.label}>
+                <Link to={link.href} className="footer-bottom-link" aria-label={link.label}>
                   {link.label}
-                </a>
+                </Link>
                 {index < legalLinks.length - 1 && <span className="footer-divider" aria-hidden="true">|</span>}
               </span>
             ))}
             <span className="footer-divider" aria-hidden="true">|</span>
-            <a href="#" className="footer-bottom-link" aria-label="Accessibility">Accessibility</a>
+            <Link to="/cookies-settings" className="footer-bottom-link" aria-label="Cookie Settings">Cookie Settings</Link>
             <span className="footer-divider" aria-hidden="true">|</span>
-            <a href="#" className="footer-bottom-link" aria-label="Do Not Sell My Info">Do Not Sell My Info</a>
+            <Link to="/accessibility" className="footer-bottom-link" aria-label="Accessibility">Accessibility</Link>
+            <span className="footer-divider" aria-hidden="true">|</span>
+            <Link to="/do-not-sell" className="footer-bottom-link" aria-label="Do Not Sell My Info">Do Not Sell My Info</Link>
           </div>
         </div>
       </div>

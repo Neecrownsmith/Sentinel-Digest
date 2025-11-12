@@ -1,15 +1,21 @@
-import Logo from '../../assets/Sentinel Digest.png';
+import { Link, useNavigate } from 'react-router-dom';
+import Logo from '../../assets/Sentinel-Digest-white-bg.png';
 import './Header.css';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import useToggle from '../../hooks/useToggle';
 import useFormInput from '../../hooks/useFormInput';
 import Icon from '../common/Icon';
 import { navigationLinks } from '../../config/navigation';
+import { useAuth } from '../../context/AuthContext';
 
 function Header() {
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
   const [isMenuOpen, toggleMenu] = useToggle(false);
   const [isSearchOpen, toggleSearch, , closeSearch] = useToggle(false);
+  const [isAccountOpen, toggleAccount, , closeAccount] = useToggle(false);
   const [searchQuery, handleSearchChange, resetSearch] = useFormInput('');
+  const accountRef = useRef(null);
 
   // Focus on search input when opened and reset when closed
   useEffect(() => {
@@ -22,14 +28,40 @@ function Header() {
     }
   }, [isSearchOpen, resetSearch]);
 
+  // Close account dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (accountRef.current && !accountRef.current.contains(event.target)) {
+        closeAccount();
+      }
+    };
+
+    if (isAccountOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isAccountOpen, closeAccount]);
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      console.log('Searching for:', searchQuery);
-      // Add your search logic here
-      // For example: navigate to search results page
-      // window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      closeSearch();
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    closeAccount();
+    navigate('/');
+  };
+
+  const handleAccountNavigate = () => {
+    closeAccount();
+    navigate('/account');
   };
 
   // Get current date
@@ -50,13 +82,45 @@ function Header() {
             <span className="header-date">{getCurrentDate()}</span>
           </div>
           
-          <div className="logo-container">
+          <Link to="/" className="logo-container">
             <img src={Logo} alt="Sentinel Digest Logo" className="logo" />
-          </div>
+          </Link>
           
           <div className="header-actions">
             <button className="cta-btn">Subscribe Now</button>
-            <button className="login-btn">LOG IN</button>
+            {isAuthenticated ? (
+              <div className="account-dropdown" ref={accountRef}>
+                <button className="account-btn" onClick={toggleAccount} aria-label="Account menu">
+                  <Icon name="user" size="20px" />
+                  <span className="account-username">{user?.username}</span>
+                  <Icon name="chevron-down" size="12px" />
+                </button>
+                {isAccountOpen && (
+                  <div className="account-menu">
+                    <div className="account-menu-header">
+                      <div className="account-avatar">
+                        {user?.username?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <div className="account-info">
+                        <div className="account-name">{user?.username}</div>
+                        <div className="account-email">{user?.email}</div>
+                      </div>
+                    </div>
+                    <div className="account-menu-divider"></div>
+                    <button className="account-menu-item" onClick={handleAccountNavigate}>
+                      <Icon name="user" size="18px" />
+                      <span>My Account</span>
+                    </button>
+                    <button className="account-menu-item" onClick={handleLogout}>
+                      <Icon name="logout" size="18px" />
+                      <span>Log Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button className="login-btn" onClick={() => navigate('/login')}>LOG IN</button>
+            )}
             <button className="search-btn" onClick={toggleSearch} aria-label="Toggle search">
               <Icon name="search" size="20px" />
             </button>
@@ -87,11 +151,11 @@ function Header() {
 
       <nav className={`header-nav ${isMenuOpen ? 'menu-open' : ''}`}>
         <div className="nav-container">
-          <a href="#" className="nav-link">Home</a>
+          <Link to="/" className="nav-link">Home</Link>
           {navigationLinks.map((link) => (
-            <a key={link.id} href={link.href} className="nav-link">
+            <Link key={link.id} to={link.href} className="nav-link">
               {link.label}
-            </a>
+            </Link>
           ))}
           <span className="nav-divider">|</span>
           <a href="#" className="nav-link nav-link-dropdown">

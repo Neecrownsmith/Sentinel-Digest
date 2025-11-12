@@ -5,7 +5,6 @@ import json
 import sys
 import django
 import uuid
-import uuid
 # Add the parent directory to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -24,8 +23,12 @@ from similarity.checker import check_duplicate
 
 load_dotenv()
 
+
+AUTO_POST = False
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 MODEL = os.getenv("OPENAI_MODEL")
+
 
 system_prompt = """
 You are an advanced Nigeria based AI system designed to rephrase full-length news articles for republication. Your primary goal is to rewrite the article using original wording while preserving its factual meaning, structure, and readability. Do NOT summarize the article — instead, rephrase it thoroughly at the sentence and paragraph level to ensure it is legally distinct from the source.
@@ -68,7 +71,7 @@ You will output your results in **strict JSON format**, with the following field
 
 - **Approximate Reading Time**: Calculate based on average reading speed (200–250 words per minute), and return the value in **seconds**.
 
-- **Images**: Include any image URLs from the source (if provided), along with a short alt-text description.
+- **Images**: Include any image URLs related to the article from the source (if image URL is provided), along with a short alt-text description.
 
 ---
 
@@ -249,7 +252,7 @@ if __name__ == "__main__":
                 print(f"  Category: {category.name} | Tags: {len(tag_names)} | Images: {len(image_urls)}")
 
                 # Auto-post to social media
-                SocialMediaService.create_social_posts(article)
+                SocialMediaService.create_social_posts(article, auto_post=AUTO_POST)
                 
             except Exception as e:
                 failed_count += 1
