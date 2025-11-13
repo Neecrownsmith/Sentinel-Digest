@@ -11,11 +11,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 django.setup()
 
-from scraper.services import get_latest_urls, scrape_article
+from scraper.services import get_latest_news_urls, scrape_article
 from articles.models import Article, Category, Tag, Image
 from scraper.models import ScrapedArticle
 from rewriter.models import Log
-from core.template import get_failed_rewriter_template
+from core.template import get_failed_service_template
 from core.utils import EmailService
 from django.utils import timezone
 from social_media.services import SocialMediaService
@@ -151,7 +151,7 @@ if __name__ == "__main__":
     total_images = 0
     
     try:
-        urls = get_latest_urls()
+        urls = get_latest_news_urls()
         log.new_url_count = len(urls)
         log.save()
         
@@ -313,5 +313,5 @@ if __name__ == "__main__":
         log.calculate_duration()
         log.save()
 
-        message = get_failed_rewriter_template(log.log_id, e)
+        message = get_failed_service_template("Rewriter", log.log_id, e)
         EmailService.send_email_to_admins(message, subject=f"Rewriter Failed: Log {log.log_id}", is_html=True)

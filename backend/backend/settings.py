@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     # Local apps
     'api',
     'articles',
+    'jobs',
     'rewriter',
     'scraper',
     'social_media',
@@ -247,17 +248,16 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# Allauth settings (Updated to new format)
+# Allauth settings (Updated to new format - Django Allauth 65.0+)
 ACCOUNT_LOGIN_METHODS = {'email'}  # Use email for login
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # Required signup fields
 ACCOUNT_EMAIL_VERIFICATION = 'optional'  # Change to 'mandatory' in production
 ACCOUNT_UNIQUE_EMAIL = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
-# Keep legacy settings for compatibility with dj-rest-auth
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+# Note: Deprecated settings removed (ACCOUNT_AUTHENTICATION_METHOD, 
+# ACCOUNT_EMAIL_REQUIRED, ACCOUNT_USERNAME_REQUIRED)
+# New format above is compatible with dj-rest-auth 6.0+
 
 # Social Account settings
 SOCIALACCOUNT_PROVIDERS = {

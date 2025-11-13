@@ -17,6 +17,10 @@ import ForgotPassword from './pages/Auth/ForgotPassword.jsx';
 import Account from './pages/Account/Account.jsx';
 import TwitterCallback from './pages/Auth/TwitterCallback.jsx';
 
+// Opportunities Pages
+import Opportunities from './pages/Opportunities/Opportunities.jsx';
+import JobDetail from './pages/JobDetail/JobDetail.jsx';
+
 // Legal Pages
 import PrivacyPolicy from './pages/Legal/PrivacyPolicy.jsx';
 import TermsOfService from './pages/Legal/TermsOfService.jsx';
@@ -55,6 +59,11 @@ function App() {
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/account" element={<Account />} />
                   <Route path="/auth/twitter/callback" element={<TwitterCallback />} />
+                  
+                  {/* Opportunities Pages */}
+                  <Route path="/opportunities" element={<Opportunities />} />
+                  <Route path="/opportunities/:categorySlug" element={<Opportunities />} />
+                  <Route path="/opportunity/:slug" element={<JobDetail />} />
                   
                   {/* Legal Pages */}
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />

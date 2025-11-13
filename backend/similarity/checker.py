@@ -20,7 +20,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 django.setup()
 
 from articles.models import Article
-from similarity.models import ArticleEmbedding 
+from jobs.models import Job
+from similarity.models import ArticleEmbedding, JobEmbedding 
 
 
 faiss_model = os.getenv("FAISS_MODEL", "all-MiniLM-L6-v2")
@@ -71,41 +72,91 @@ def decode_embedding(embedding_binary):
     return embedding_array
 
 
-def build_faiss_index(lookback_days=None):
+def encode_job(job):
     """
-    Build FAISS index from articles with embeddings in the database.
+    Encode a job's content into an embedding vector.
     
     Args:
-        lookback_days: Number of days to look back for articles. 
-                      If None, includes all articles.
-                      If specified, only includes articles from the last N days.
+        job: Job instance
+        
+    Returns:
+        numpy.ndarray: Embedding vector
+    """
+    # Combine role and description for better representation
+    text = f"{job.role}\n\n{job.description}"
+    embedding = model.encode(text, convert_to_tensor=False, normalize_embeddings=True)
+    
+    # Save embedding to database
+    JobEmbedding.objects.update_or_create(
+        job=job,
+        defaults={"embedding_vector": embedding.tobytes()}
+    )
+    
+    return embedding
+
+
+def build_faiss_index(lookback_days=None, model_type='article'):
+    """
+    Build FAISS index from articles or jobs with embeddings in the database.
+    
+    Args:
+        lookback_days: Number of days to look back. 
+                      If None, includes all items.
+                      If specified, only includes items from the last N days.
+        model_type: 'article' or 'job'
     
     Returns:
-        tuple: (faiss.Index, list of article IDs)
+        tuple: (faiss.Index, list of IDs)
     """
-    print("Building FAISS index from database...")
+    print(f"Building FAISS index for {model_type}s from database...")
     
-    # Get all article embeddings with optional date filter
-    embeddings_query = ArticleEmbedding.objects.select_related('article')
+    # Get embeddings based on model type
+    if model_type == 'article':
+        embeddings_query = ArticleEmbedding.objects.select_related('article')
+        
+        if lookback_days is not None:
+            cutoff_date = timezone.now() - timedelta(days=lookback_days)
+            embeddings_query = embeddings_query.filter(article__created_at__gte=cutoff_date)
+            print(f"Filtering articles from last {lookback_days} days (since {cutoff_date.date()})")
+        
+        embeddings_data = embeddings_query.all()
+        
+        if not embeddings_data.exists():
+            print("No article embeddings found in database")
+            return None, []
+        
+        embeddings = []
+        item_ids = []
+        
+        for emb_obj in embeddings_data:
+            embedding = decode_embedding(emb_obj.embedding_vector)
+            embeddings.append(embedding)
+            item_ids.append(emb_obj.article.id)
     
-    if lookback_days is not None:
-        cutoff_date = timezone.now() - timedelta(days=lookback_days)
-        embeddings_query = embeddings_query.filter(article__created_at__gte=cutoff_date)
-        print(f"Filtering articles from last {lookback_days} days (since {cutoff_date.date()})")
+    elif model_type == 'job':
+        embeddings_query = JobEmbedding.objects.select_related('job')
+        
+        if lookback_days is not None:
+            cutoff_date = timezone.now() - timedelta(days=lookback_days)
+            embeddings_query = embeddings_query.filter(job__created_at__gte=cutoff_date)
+            print(f"Filtering jobs from last {lookback_days} days (since {cutoff_date.date()})")
+        
+        embeddings_data = embeddings_query.all()
+        
+        if not embeddings_data.exists():
+            print("No job embeddings found in database")
+            return None, []
+        
+        embeddings = []
+        item_ids = []
+        
+        for emb_obj in embeddings_data:
+            embedding = decode_embedding(emb_obj.embedding_vector)
+            embeddings.append(embedding)
+            item_ids.append(emb_obj.job.id)
     
-    embeddings_data = embeddings_query.all()
-    
-    if not embeddings_data.exists():
-        print("No article embeddings found in database")
-        return None, []
-    
-    embeddings = []
-    article_ids = []
-    
-    for emb_obj in embeddings_data:
-        embedding = decode_embedding(emb_obj.embedding_vector)
-        embeddings.append(embedding)
-        article_ids.append(emb_obj.article.id)
+    else:
+        raise ValueError(f"Invalid model_type: {model_type}. Must be 'article' or 'job'")
     
     # Convert to numpy array
     embeddings_array = np.array(embeddings).astype('float32')
@@ -120,59 +171,68 @@ def build_faiss_index(lookback_days=None):
     # Add vectors to index
     index.add(embeddings_array)
     
-    print(f"FAISS index built with {len(article_ids)} articles")
+    print(f"FAISS index built with {len(item_ids)} {model_type}s")
     
     # Cache the index
-    _cache_faiss_index(index, article_ids)
+    _cache_faiss_index(index, item_ids, model_type=model_type)
     
-    return index, article_ids
+    return index, item_ids
 
 
-def _cache_faiss_index(index, article_ids):
+def _cache_faiss_index(index, item_ids, model_type='article'):
     """
-    Save FAISS index and article IDs to cache.
+    Save FAISS index and item IDs to cache.
     
     Args:
         index: FAISS index
-        article_ids: List of article IDs
+        item_ids: List of item IDs (article or job IDs)
+        model_type: 'article' or 'job'
     """
     # Serialize index
     serialized_index = faiss.serialize_index(index)
     
-    cache.set(FAISS_INDEX_CACHE_KEY, serialized_index, timeout=None)
-    cache.set(FAISS_ARTICLE_IDS_CACHE_KEY, article_ids, timeout=None)
+    # Use different cache keys for articles and jobs
+    index_key = f"faiss_index_{model_type}"
+    ids_key = f"faiss_{model_type}_ids"
     
-    print("FAISS index cached successfully")
+    cache.set(index_key, serialized_index, timeout=None)
+    cache.set(ids_key, item_ids, timeout=None)
+    
+    print(f"FAISS {model_type} index cached successfully")
 
 
-def load_faiss_index(lookback_days=None):
+def load_faiss_index(lookback_days=None, model_type='article'):
     """
     Load FAISS index from cache or rebuild if not available.
     
     Args:
-        lookback_days: Number of days to look back for articles.
-                      If None, includes all articles.
+        lookback_days: Number of days to look back.
+                      If None, includes all items.
+        model_type: 'article' or 'job'
     
     Returns:
-        tuple: (faiss.Index, list of article IDs)
+        tuple: (faiss.Index, list of IDs)
     """
     # If lookback_days is specified, always rebuild (can't cache filtered indexes reliably)
     if lookback_days is not None:
-        print(f"Building index with {lookback_days}-day lookback (no cache for filtered queries)")
-        return build_faiss_index(lookback_days=lookback_days)
+        print(f"Building {model_type} index with {lookback_days}-day lookback (no cache for filtered queries)")
+        return build_faiss_index(lookback_days=lookback_days, model_type=model_type)
     
     # Try to load from cache (full index only)
-    cached_index = cache.get(FAISS_INDEX_CACHE_KEY)
-    cached_article_ids = cache.get(FAISS_ARTICLE_IDS_CACHE_KEY)
+    index_key = f"faiss_index_{model_type}"
+    ids_key = f"faiss_{model_type}_ids"
     
-    if cached_index and cached_article_ids:
-        print(f"Loaded FAISS index from cache with {len(cached_article_ids)} articles")
+    cached_index = cache.get(index_key)
+    cached_item_ids = cache.get(ids_key)
+    
+    if cached_index and cached_item_ids:
+        print(f"Loaded FAISS {model_type} index from cache with {len(cached_item_ids)} items")
         index = faiss.deserialize_index(cached_index)
-        return index, cached_article_ids
+        return index, cached_item_ids
     
     # Rebuild if not in cache
-    print("FAISS index not in cache, rebuilding...")
-    return build_faiss_index(lookback_days=None)
+    print(f"FAISS {model_type} index not in cache, rebuilding...")
+    return build_faiss_index(lookback_days=None, model_type=model_type)
 
 
 def add_article_to_index(article):
@@ -278,53 +338,198 @@ def find_similar_articles(article, top_k=5, threshold=None, lookback_days=None):
     return similar_articles[:top_k]
 
 
-def check_duplicate(article_text, threshold=None, lookback_days=None):
+def find_similar_jobs(job, top_k=5, threshold=None, lookback_days=None):
     """
-    Check if an article text is a duplicate of existing articles.
+    Find jobs similar to the given job.
+    
+    Args:
+        job: Job instance or text string
+        top_k: Number of similar jobs to return
+        threshold: Similarity threshold (0-1), uses env variable if None
+        lookback_days: Number of days to look back. If None, uses default_lookback_days.
+                      Set to 0 or False to search all jobs.
+        
+    Returns:
+        list: List of tuples (job_id, similarity_score)
+    """
+    if threshold is None:
+        threshold = similarity_threshold
+    
+    # Handle lookback_days logic
+    if lookback_days is None:
+        lookback_days = default_lookback_days
+    elif lookback_days == 0 or lookback_days is False:
+        lookback_days = None  # Search all jobs
+    
+    # Check if there are any job embeddings
+    if not JobEmbedding.objects.exists():
+        print("No job embeddings found in database")
+        return []
+    
+    # Load FAISS index with optional date filtering
+    index, job_ids = load_faiss_index(lookback_days=lookback_days, model_type='job')
+    
+    if index is None or index.ntotal == 0:
+        print("No jobs in FAISS index")
+        return []
+    
+    # Get embedding for query job
+    if isinstance(job, str):
+        # If job is a string, encode it directly
+        query_embedding = model.encode(job, convert_to_tensor=False, normalize_embeddings=True)
+    else:
+        # If job is a Job instance
+        text = f"{job.role}\n\n{job.description}"
+        query_embedding = model.encode(text, convert_to_tensor=False, normalize_embeddings=True)
+    
+    # Reshape for FAISS
+    query_embedding = np.array([query_embedding]).astype('float32')
+    faiss.normalize_L2(query_embedding)
+    
+    # Search for similar jobs
+    distances, indices = index.search(query_embedding, k=min(top_k + 1, index.ntotal))
+    
+    # Filter results by threshold and exclude the query job itself
+    similar_jobs = []
+    for idx, distance in zip(indices[0], distances[0]):
+        similarity_score = float(distance)  # Cosine similarity (0-1)
+        
+        if similarity_score >= threshold:
+            job_id = job_ids[idx]
+            
+            # Exclude the query job itself
+            if not isinstance(job, str) and job_id == job.id:
+                continue
+            
+            similar_jobs.append((job_id, similarity_score))
+    
+    return similar_jobs[:top_k]
+
+
+def check_duplicate(article_text=None, job_text=None, threshold=None, lookback_days=None, model_type='article'):
+    """
+    Check if an article or job text is a duplicate of existing items.
     
     Args:
         article_text: String containing article content (title + excerpt + content) or dict
+        job_text: String containing job content (role + description) or dict
         threshold: Similarity threshold (0-1), uses env variable if None
         lookback_days: Number of days to look back. If None, uses default_lookback_days.
-                      Set to 0 or False to search all articles.
+                      Set to 0 or False to search all items.
+        model_type: 'article' or 'job'
         
     Returns:
         dict: {
             'is_duplicate': bool,
             'similarity_score': float,
-            'similar_article_id': int or None,
-            'similar_article': Article instance or None,
-            'similar_article_title': str or None
+            'similar_item_id': int or None,
+            'similar_item': Article/Job instance or None,
+            'similar_item_title': str or None
         }
     """
     if threshold is None:
         threshold = similarity_threshold
     
-    # Handle dict input
-    if isinstance(article_text, dict):
-        article_text = f"{article_text.get('title', '')}\n\n{article_text.get('excerpt', '')}\n\n{article_text.get('content', '')}"
-    
-    similar_articles = find_similar_articles(article_text, top_k=1, threshold=threshold, lookback_days=lookback_days)
-    
-    if similar_articles:
-        article_id, similarity_score = similar_articles[0]
-        similar_article = Article.objects.get(id=article_id)
+    if model_type == 'article':
+        # Handle dict input for articles
+        if isinstance(article_text, dict):
+            article_text = f"{article_text.get('title', '')}\n\n{article_text.get('excerpt', '')}\n\n{article_text.get('content', '')}"
+        
+        if not article_text:
+            return {
+                'is_duplicate': False,
+                'similarity_score': 0.0,
+                'similar_item_id': None,
+                'similar_item': None,
+                'similar_item_title': None
+            }
+        
+        similar_articles = find_similar_articles(article_text, top_k=1, threshold=threshold, lookback_days=lookback_days)
+        
+        if similar_articles:
+            article_id, similarity_score = similar_articles[0]
+            similar_article = Article.objects.get(id=article_id)
+            
+            return {
+                'is_duplicate': True,
+                'similarity_score': similarity_score,
+                'similar_item_id': article_id,
+                'similar_article_id': article_id,
+                'similar_item': similar_article,
+                'similar_article': similar_article,
+                'similar_item_title': similar_article.title,
+                'similar_article_title': similar_article.title
+            }
         
         return {
-            'is_duplicate': True,
-            'similarity_score': similarity_score,
-            'similar_article_id': article_id,
-            'similar_article': similar_article,
-            'similar_article_title': similar_article.title
+            'is_duplicate': False,
+            'similarity_score': 0.0,
+            'similar_item_id': None,
+            'similar_article_id': None,
+            'similar_item': None,
+            'similar_article': None,
+            'similar_item_title': None,
+            'similar_article_title': None
         }
     
-    return {
-        'is_duplicate': False,
-        'similarity_score': 0.0,
-        'similar_article_id': None,
-        'similar_article': None,
-        'similar_article_title': None
-    }
+    elif model_type == 'job':
+        # Handle dict or string input for jobs
+        if isinstance(job_text, dict):
+            job_text = f"{job_text.get('role', '')}\n\n{job_text.get('description', '')}"
+        
+        if not job_text:
+            return {
+                'is_duplicate': False,
+                'similarity_score': 0.0,
+                'similar_item_id': None,
+                'similar_item': None,
+                'similar_item_title': None
+            }
+        
+        # Check if there are any jobs to compare against
+        if not Job.objects.exists():
+            print("No existing jobs to check for duplicates")
+            return {
+                'is_duplicate': False,
+                'similarity_score': 0.0,
+                'similar_item_id': None,
+                'similar_job_id': None,
+                'similar_item': None,
+                'similar_job': None,
+                'similar_item_title': None,
+                'similar_job_role': None
+            }
+        
+        similar_jobs = find_similar_jobs(job_text, top_k=1, threshold=threshold, lookback_days=lookback_days)
+        
+        if similar_jobs:
+            job_id, similarity_score = similar_jobs[0]
+            similar_job = Job.objects.get(id=job_id)
+            
+            return {
+                'is_duplicate': True,
+                'similarity_score': similarity_score,
+                'similar_item_id': job_id,
+                'similar_job_id': job_id,
+                'similar_item': similar_job,
+                'similar_job': similar_job,
+                'similar_item_title': similar_job.role,
+                'similar_job_role': similar_job.role
+            }
+        
+        return {
+            'is_duplicate': False,
+            'similarity_score': 0.0,
+            'similar_item_id': None,
+            'similar_job_id': None,
+            'similar_item': None,
+            'similar_job': None,
+            'similar_item_title': None,
+            'similar_job_role': None
+        }
+    
+    else:
+        raise ValueError(f"Invalid model_type: {model_type}. Must be 'article' or 'job'")
 
 
 def rebuild_index():

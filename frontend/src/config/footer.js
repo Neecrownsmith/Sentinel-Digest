@@ -17,7 +17,8 @@ export const footerSections = {
     title: 'Our Services',
     links: [
       { label: 'eNewspaper', href: '#enewspaper'},
-      { label: 'Job Board', href: '#jobs' },
+      { label: 'Job Opportunities', href: '#jobs' },
+      { label: 'Scholarship Opportunites', href:'#scholarships'},
       { label: 'Games & Puzzles', href: '#games' },
       { label: 'Store', href: '#store' },
       { label: 'Newsletter', href: '#newsletter' },

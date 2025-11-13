@@ -1,0 +1,353 @@
+/* Opportunity Card Styles */
+.opportunity-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.opportunity-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.opportunity-card--featured {
+  border-top: 3px solid #000;
+}
+
+.opportunity-card__logo-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: #f9f9f9;
+  border-bottom: 1px solid #e0e0e0;
+  min-height: 120px;
+}
+
+.opportunity-card__logo {
+  max-width: 120px;
+  max-height: 80px;
+  object-fit: contain;
+}
+
+.opportunity-card__content {
+  padding: 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.opportunity-card__category {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #000;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+}
+
+.opportunity-card__category:hover {
+  text-decoration: underline;
+}
+
+.opportunity-card__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 0.5rem;
+}
+
+.opportunity-card__title a {
+  color: #000;
+  text-decoration: none;
+}
+
+.opportunity-card__title a:hover {
+  text-decoration: underline;
+}
+
+.opportunity-card__company {
+  font-size: 0.938rem;
+  color: #666;
+  margin: 0 0 0.75rem;
+  font-weight: 500;
+}
+
+.opportunity-card__description {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #333;
+  margin: 0 0 1rem;
+}
+
+.opportunity-card__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.opportunity-card__detail {
+  font-size: 0.813rem;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.opportunity-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.813rem;
+  color: #666;
+  margin-bottom: 0.75rem;
+}
+
+.opportunity-card__date {
+  font-weight: 500;
+}
+
+.opportunity-card__deadline {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+.opportunity-card__skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.opportunity-card__skill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #f0f0f0;
+  color: #333;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* Compact Opportunity Card */
+.opportunity-card-compact {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background 0.2s ease;
+}
+
+.opportunity-card-compact:hover {
+  background: #f9f9f9;
+}
+
+.opportunity-card-compact__logo-wrapper {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.opportunity-card-compact__logo {
+  max-width: 50px;
+  max-height: 50px;
+  object-fit: contain;
+}
+
+.opportunity-card-compact__content {
+  flex: 1;
+}
+
+.opportunity-card-compact__category {
+  display: inline-block;
+  font-size: 0.688rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #000;
+  margin-bottom: 0.25rem;
+  text-decoration: none;
+}
+
+.opportunity-card-compact__category:hover {
+  text-decoration: underline;
+}
+
+.opportunity-card-compact__title {
+  font-size: 0.938rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 0.25rem;
+}
+
+.opportunity-card-compact__title a {
+  color: #000;
+  text-decoration: none;
+}
+
+.opportunity-card-compact__title a:hover {
+  text-decoration: underline;
+}
+
+.opportunity-card-compact__company {
+  font-size: 0.813rem;
+  color: #666;
+  margin: 0 0 0.5rem;
+}
+
+.opportunity-card-compact__date {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+/* Hero Opportunity Card */
+.opportunity-card-hero {
+  position: relative;
+  min-height: 450px;
+  background: #fafafa;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.opportunity-card-hero__link {
+  display: block;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.opportunity-card-hero__content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem;
+  color: #000;
+}
+
+.opportunity-card-hero__logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  background: #fff;
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+.opportunity-card-hero__category {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #000;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 2px;
+  margin-bottom: 1rem;
+  width: fit-content;
+}
+
+.opportunity-card-hero__title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
+  color: #000;
+}
+
+.opportunity-card-hero__company {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0 0 1rem;
+  color: #666;
+}
+
+.opportunity-card-hero__description {
+  font-size: 1.063rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+  color: #333;
+  max-width: 700px;
+}
+
+.opportunity-card-hero__meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.938rem;
+  font-weight: 500;
+}
+
+.opportunity-card-hero__location {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .opportunity-card__logo-wrapper {
+    min-height: 80px;
+    padding: 1rem;
+  }
+
+  .opportunity-card__logo {
+    max-width: 80px;
+    max-height: 60px;
+  }
+
+  .opportunity-card__title {
+    font-size: 1.125rem;
+  }
+
+  .opportunity-card__details {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .opportunity-card-compact {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .opportunity-card-compact__logo-wrapper {
+    width: 50px;
+    height: 50px;
+  }
+
+  .opportunity-card-hero__content {
+    padding: 2rem;
+  }
+
+  .opportunity-card-hero__title {
+    font-size: 1.75rem;
+  }
+
+  .opportunity-card-hero__company {
+    font-size: 1rem;
+  }
+
+  .opportunity-card-hero__description {
+    font-size: 0.938rem;
+  }
+}

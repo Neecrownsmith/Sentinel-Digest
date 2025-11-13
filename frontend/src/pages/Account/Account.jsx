@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { articlesAPI, socialPostsAPI } from '../../services/api';
 import { ArticleCard } from '../../components/ArticleCard/ArticleCard';
+import { getProxiedImageUrl } from '../../utils/imageProxy';
 import './Account.css';
 
 function Account() {
@@ -652,7 +653,20 @@ function Account() {
                                   <div key={post.id} className="social-post-card">
                                     <div className="post-content">
                                       {post.article_image && (
-                                        <img src={post.article_image} alt={post.article_title} className="post-image" />
+                                        <img 
+                                          src={post.article_image} 
+                                          alt={post.article_title} 
+                                          className="post-image" 
+                                          onError={(e) => {
+                                            const img = e.target;
+                                            if (!img.dataset.proxied) {
+                                              img.dataset.proxied = '1';
+                                              img.src = getProxiedImageUrl(img.src);
+                                            } else {
+                                              img.style.display = 'none';
+                                            }
+                                          }}
+                                        />
                                       )}
                                       <div className="post-details">
                                         <h4>{post.article_title}</h4>

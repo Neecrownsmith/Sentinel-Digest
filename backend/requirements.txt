@@ -17,3 +17,4 @@ django-redis
 django-allauth
 dj-rest-auth
 cryptography
+html2text

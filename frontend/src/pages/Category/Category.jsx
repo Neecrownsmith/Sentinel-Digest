@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { articlesAPI, categoriesAPI } from '../../services/api';
-import { ArticleCard } from '../../components/ArticleCard/ArticleCard';
+import { ArticleCard, ArticleCardCompact, ArticleCardHero } from '../../components/ArticleCard/ArticleCard';
 import './Category.css';
 
 function Category() {
@@ -88,10 +88,63 @@ function Category() {
         <div className="category-content__container">
           {articles.length > 0 ? (
             <>
-              <div className="articles-grid">
-                {articles.map(article => (
-                  <ArticleCard key={article.id} article={article} />
-                ))}
+              {/* Guardian-style three-column layout on desktop */}
+              <div className="category-layout">
+                {/* Left column: compact headline list */}
+                <aside className="cat-col cat-col-left">
+                  <h3 className="cat-section-title">Latest</h3>
+                  <div className="cat-left-list">
+                    {articles.slice(0, 8).map((a) => (
+                      <ArticleCardCompact
+                        key={a.id}
+                        article={a}
+                        showImage={false}
+                        showCategory={false}
+                      />
+                    ))}
+                  </div>
+                </aside>
+
+                {/* Middle column: hero + featured + grid */}
+                <div className="cat-col cat-col-middle">
+                  {/* Hero story */}
+                  {articles[0] && (
+                    <div className="cat-hero">
+                      <ArticleCardHero article={articles[0]} />
+                    </div>
+                  )}
+
+                  {/* Two featured cards side-by-side */}
+                  {articles.length > 1 && (
+                    <div className="cat-featured-row">
+                      {articles.slice(1, 3).map((a) => (
+                        <ArticleCard key={a.id} article={a} featured />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Standard grid */}
+                  <div className="cat-middle-grid">
+                    {articles.slice(3, 9).map((a) => (
+                      <ArticleCard key={a.id} article={a} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right column: compact list with small thumbnails */}
+                <aside className="cat-col cat-col-right">
+                  <h3 className="cat-section-title">More Stories</h3>
+                  <div className="cat-right-list">
+                    {articles.slice(9, 20).map((a) => (
+                      <ArticleCardCompact
+                        key={a.id}
+                        article={a}
+                        showImage={true}
+                        showCategory={false}
+                      />
+                    ))}
+                  </div>
+                </aside>
               </div>
 
               {/* Pagination */}
@@ -104,11 +157,11 @@ function Category() {
                   >
                     ← Previous
                   </button>
-                  
+
                   <div className="pagination__info">
                     Page {pagination.currentPage} of {pagination.totalPages}
                   </div>
-                  
+
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={!pagination.next}

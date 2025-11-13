@@ -1,21 +1,32 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Logo from '../../assets/Sentinel-Digest-white-bg.png';
 import './Header.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useToggle from '../../hooks/useToggle';
 import useFormInput from '../../hooks/useFormInput';
 import Icon from '../common/Icon';
-import { navigationLinks } from '../../config/navigation';
+import { navigationLinks, opportunityCategories } from '../../config/navigation';
 import { useAuth } from '../../context/AuthContext';
 
 function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
-  const [isMenuOpen, toggleMenu] = useToggle(false);
+  const [isMenuOpen, toggleMenu, , closeMenu] = useToggle(false);
   const [isSearchOpen, toggleSearch, , closeSearch] = useToggle(false);
   const [isAccountOpen, toggleAccount, , closeAccount] = useToggle(false);
+  const [isOpportunitiesExpanded, setIsOpportunitiesExpanded] = useState(false);
   const [searchQuery, handleSearchChange, resetSearch] = useFormInput('');
   const accountRef = useRef(null);
+  
+  // Prevent body scroll when mobile nav open
+  useEffect(() => {
+    if (isMenuOpen && window.innerWidth <= 1190) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+  }, [isMenuOpen]);
 
   // Focus on search input when opened and reset when closed
   useEffect(() => {
@@ -62,6 +73,16 @@ function Header() {
   const handleAccountNavigate = () => {
     closeAccount();
     navigate('/account');
+  };
+
+  const toggleOpportunities = (e) => {
+    e.preventDefault();
+    setIsOpportunitiesExpanded(!isOpportunitiesExpanded);
+  };
+
+  const handleOpportunityClick = () => {
+    setIsOpportunitiesExpanded(false);
+    closeMenu();
   };
 
   // Get current date
@@ -153,16 +174,50 @@ function Header() {
         <div className="nav-container">
           <Link to="/" className="nav-link">Home</Link>
           {navigationLinks.map((link) => (
-            <Link key={link.id} to={link.href} className="nav-link">
+            <Link
+              key={link.id}
+              to={link.href}
+              className="nav-link"
+              onClick={(e) => {
+                // If already on this URL, prevent redundant navigation and just collapse
+                if (location.pathname === link.href) {
+                  e.preventDefault();
+                }
+                closeMenu();
+                setIsOpportunitiesExpanded(false);
+              }}
+            >
               {link.label}
             </Link>
           ))}
           <span className="nav-divider">|</span>
-          <a href="#" className="nav-link nav-link-dropdown">
-            Jobs 
-            <Icon name="chevron-down" size="12px" />
-          </a>
-          <a href="#" className="nav-link nav-link-dropdown">
+          <div className={`nav-menu-item ${isOpportunitiesExpanded ? 'expanded' : ''}`}>
+            <button 
+              className={`nav-link nav-link-expandable ${isOpportunitiesExpanded ? 'expanded' : ''}`}
+              onClick={toggleOpportunities}
+            >
+              Opportunities
+              <Icon name="chevron-down" size="12px" />
+            </button>
+            <div className="nav-submenu">
+              {opportunityCategories.map((category) => (
+                <Link 
+                  key={category.id} 
+                  to={category.href} 
+                  className="nav-submenu-item"
+                  onClick={(e) => {
+                    if (location.pathname === category.href) {
+                      e.preventDefault();
+                    }
+                    handleOpportunityClick();
+                  }}
+                >
+                  {category.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+          <a href="#" className="nav-link nav-link-expandable">
             Games 
             <Icon name="chevron-down" size="12px" />
           </a>

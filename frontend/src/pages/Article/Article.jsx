@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { getProxiedImageUrl } from '../../utils/imageProxy';
 import { articlesAPI } from '../../services/api';
 import { ArticleCardCompact } from '../../components/ArticleCard/ArticleCard';
 import { formatDateTime } from '../../utils/dateUtils';
@@ -282,14 +283,15 @@ function Article() {
       }
       
       // Insert image if we're at a strategic position
-      if (imageIndex < images.length && imagePositions[imageIndex] === index) {
+        if (imageIndex < images.length && imagePositions[imageIndex] === index) {
         const image = images[imageIndex];
         const imgSrc = image.url || image.image;
         const imgAlt = image.alt_text || image.caption || '';
         const imgCaption = image.caption || '';
         html += `
           <figure class="article-image-inline">
-            <img src="${imgSrc}" alt="${imgAlt}" />
+              <img src="${imgSrc}" alt="${imgAlt}"
+                   onerror="if(!this.dataset.proxied){this.dataset.proxied=1;this.src='/api/proxy-image/?url='+encodeURIComponent(this.src);}else{this.style.display='none';}" />
             ${imgCaption ? `<figcaption>${imgCaption}</figcaption>` : ''}
           </figure>
         `;
@@ -367,7 +369,19 @@ function Article() {
       {/* Featured Image */}
       {article.featured_image && (
         <div className="article-featured-image">
-          <img src={article.featured_image} alt={article.title} />
+          <img 
+            src={article.featured_image} 
+            alt={article.title}
+            onError={(e) => {
+              const img = e.target;
+              if (!img.dataset.proxied) {
+                img.dataset.proxied = '1';
+                img.src = getProxiedImageUrl(img.src);
+              } else {
+                img.style.display = 'none';
+              }
+            }}
+          />
         </div>
       )}
 

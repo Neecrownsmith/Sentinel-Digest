@@ -191,4 +191,33 @@ export const socialPostsAPI = {
   markAsPosted: (postId) => api.post(`/social-posts/${postId}/mark-posted/`).then(res => res.data),
 };
 
+// Jobs/Opportunities API
+export const jobsAPI = {
+  // Get all jobs with filters and pagination
+  getJobs: (params = {}) => api.get('/jobs/', { params }),
+  
+  // Get single job by slug
+  getJob: (slug) => api.get(`/jobs/${slug}/`),
+  
+  // Get featured jobs (6 most recent)
+  getFeatured: () => api.get('/jobs/featured/'),
+  
+  // Get jobs by category
+  getByCategory: (categorySlug, page = 1) => 
+    api.get('/jobs/', { params: { category: categorySlug, page } }),
+  
+  // Search jobs
+  search: (query, params = {}) => 
+    api.get('/jobs/search/', { params: { q: query, ...params } }),
+};
+
+// Job Categories API
+export const jobCategoriesAPI = {
+  // Get all job categories
+  getCategories: () => api.get('/job-categories/'),
+  
+  // Get single job category by slug
+  getCategory: (slug) => api.get(`/job-categories/${slug}/`),
+};
+
 export default api;

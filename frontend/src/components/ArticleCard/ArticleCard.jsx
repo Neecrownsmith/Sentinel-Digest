@@ -10,7 +10,7 @@ function ArticleCard({ article, featured = false }) {
   const imageAlt = article.featured_image?.alt_text || article.title;
   
   return (
-    <article className={`article-card ${featured ? 'article-card--featured' : ''}`}>
+    <article className={`article-card ${featured ? 'article-card--featured' : ''} ${!featuredImageUrl ? 'article-card--no-image' : ''}`}>
       {featuredImageUrl && (
         <Link to={`/article/${article.slug}`} className="article-card__image-link">
           <img 
@@ -18,7 +18,8 @@ function ArticleCard({ article, featured = false }) {
             alt={imageAlt}
             className="article-card__image"
             onError={(e) => {
-              e.target.style.display = 'none';
+              e.target.closest('.article-card__image-link').style.display = 'none';
+              e.target.closest('.article-card').classList.add('article-card--no-image');
             }}
           />
         </Link>
@@ -75,7 +76,7 @@ function ArticleCardCompact({ article, showImage = true, showCategory = true }) 
   const imageAlt = article.featured_image?.alt_text || article.title;
   
   return (
-    <article className="article-card-compact">
+    <article className={`article-card-compact ${!featuredImageUrl || !showImage ? 'article-card-compact--no-image' : ''}`}>
       {showImage && featuredImageUrl && (
         <Link to={`/article/${article.slug}`} className="article-card-compact__image-link">
           <img 
@@ -83,7 +84,8 @@ function ArticleCardCompact({ article, showImage = true, showCategory = true }) 
             alt={imageAlt}
             className="article-card-compact__image"
             onError={(e) => {
-              e.target.style.display = 'none';
+              e.target.closest('.article-card-compact__image-link').style.display = 'none';
+              e.target.closest('.article-card-compact').classList.add('article-card-compact--no-image');
             }}
           />
         </Link>

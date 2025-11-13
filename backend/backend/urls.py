@@ -22,6 +22,7 @@ from api.views import (
     ArticleViewSet, CategoryViewSet, TagViewSet, SearchViewSet,
     EmailTokenObtainPairView, get_pending_social_posts, mark_social_post_posted
 )
+from jobs.views import JobViewSet, JobCategoryViewSet
 from api.oauth_views import GoogleLogin, FacebookLogin, TwitterLogin, social_login, oauth_redirect
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -31,6 +32,8 @@ router.register(r'articles', ArticleViewSet, basename='article')
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'tags', TagViewSet, basename='tag')
 router.register(r'search', SearchViewSet, basename='search')
+router.register(r'jobs', JobViewSet, basename='job')
+router.register(r'job-categories', JobCategoryViewSet, basename='job-category')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

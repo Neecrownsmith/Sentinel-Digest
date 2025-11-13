@@ -20,3 +20,22 @@ class ScrapedArticle(models.Model):
 
     def __str__(self):
         return self.url
+
+
+class JobSource(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    base_url = models.URLField(unique=True)
+    feed_url = models.URLField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+
+    def __str__(self):
+        return self.name
+
+class ScrapedJob(models.Model):
+    source = models.ForeignKey(JobSource, on_delete=models.CASCADE, related_name='jobs')
+    url = models.URLField(unique=True)
+    scraped_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.url
