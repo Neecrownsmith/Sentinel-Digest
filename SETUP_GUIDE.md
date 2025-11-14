@@ -133,14 +133,14 @@ npm install --legacy-peer-deps
 The `.env` file should already exist with:
 ```
 VITE_API_URL=http://localhost:8000/api
-VITE_BACKEND_URL=http://localhost:8000
+
 ```
 
 If not, create it in `frontend/` directory with the above content.
 
 **Environment Variables Explained:**
 - `VITE_API_URL`: Base URL for API requests (Django REST endpoints)
-- `VITE_BACKEND_URL`: Base URL for backend (used for admin panel links)
+
 
 ### 4. Start Frontend Development Server
 
@@ -246,11 +246,10 @@ npm install --legacy-peer-deps
 - Should include `http://localhost:5173`
 
 **Cannot connect to API**
-- Verify `VITE_API_URL` and `VITE_BACKEND_URL` in frontend `.env`
+- Verify `VITE_API_URL` in frontend `.env`
 - Check backend server is running
 - Ensure both environment variables are set correctly:
   - `VITE_API_URL=http://localhost:8000/api`
-  - `VITE_BACKEND_URL=http://localhost:8000`
 - Test API directly: http://localhost:8000/api/articles/
 
 **Page not found (404)**

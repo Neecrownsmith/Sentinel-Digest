@@ -109,12 +109,12 @@ npm install
 Create a `.env` file in the frontend directory:
 ```
 VITE_API_BASE_URL=http://localhost:8000/api
-VITE_BACKEND_URL=http://localhost:8000
+
 ```
 
 **Environment Variables:**
 - `VITE_API_BASE_URL`: API endpoint base URL for REST calls
-- `VITE_BACKEND_URL`: Backend base URL for admin panel links
+
 
 ## Development
 

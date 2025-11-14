@@ -92,7 +92,7 @@ frontend/
    Create `.env` file in root directory:
    ```env
    VITE_API_BASE_URL=http://localhost:8000/api
-   VITE_BACKEND_URL=http://localhost:8000
+
    ```
 
 3. **Start Development Server**
@@ -114,7 +114,7 @@ frontend/
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `VITE_API_BASE_URL` | API endpoint base URL | `http://localhost:8000/api` |
-| `VITE_BACKEND_URL` | Backend base URL (for admin links) | `http://localhost:8000` |
+
 
 ## Key Components
 
@@ -297,7 +297,6 @@ npm run preview
 
 ### Deployment Checklist
 - [ ] Update `VITE_API_BASE_URL` to production URL
-- [ ] Update `VITE_BACKEND_URL` to production backend URL
 - [ ] Test all routes and API endpoints
 - [ ] Verify authentication flow
 - [ ] Check responsive design

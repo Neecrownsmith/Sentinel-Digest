@@ -10,11 +10,9 @@ const REQUIRED_ENV_VARS = [
 ];
 
 const OPTIONAL_ENV_VARS = [
-  'VITE_API_BASE_URL',
   'VITE_GOOGLE_CLIENT_ID',
   'VITE_FACEBOOK_APP_ID',
   'VITE_TWITTER_CLIENT_ID',
-  'VITE_BACKEND_URL'
 ];
 
 /**
@@ -109,11 +107,9 @@ export function getOAuthStatus() {
  */
 export function getApiConfig() {
   const apiUrl = import.meta.env.VITE_API_URL || 
-                 import.meta.env.VITE_API_BASE_URL || 
                  'http://localhost:8000/api';
   
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 
-                     apiUrl.replace('/api', '');
+  const backendUrl = apiUrl.replace('/api', '');
 
   return {
     apiUrl,

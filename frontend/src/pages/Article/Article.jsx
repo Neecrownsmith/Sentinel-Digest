@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { getProxiedImageUrl } from '../../utils/imageProxy';
 import { articlesAPI } from '../../services/api';
 import { ArticleCardCompact } from '../../components/ArticleCard/ArticleCard';
 import { formatDateTime } from '../../utils/dateUtils';
@@ -373,13 +372,7 @@ function Article() {
             src={article.featured_image} 
             alt={article.title}
             onError={(e) => {
-              const img = e.target;
-              if (!img.dataset.proxied) {
-                img.dataset.proxied = '1';
-                img.src = getProxiedImageUrl(img.src);
-              } else {
-                img.style.display = 'none';
-              }
+              e.target.style.display = 'none';
             }}
           />
         </div>

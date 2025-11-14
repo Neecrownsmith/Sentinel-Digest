@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { articlesAPI, socialPostsAPI } from '../../services/api';
 import { ArticleCard } from '../../components/ArticleCard/ArticleCard';
-import { getProxiedImageUrl } from '../../utils/imageProxy';
 import './Account.css';
 
 function Account() {
@@ -24,7 +23,7 @@ function Account() {
   const [saving, setSaving] = useState(false);
 
   // Get backend URL from environment variable
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+  const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
 
   // Check if user is admin or superuser
   const isAdmin = user?.is_staff || user?.is_superuser;
@@ -658,13 +657,7 @@ function Account() {
                                           alt={post.article_title} 
                                           className="post-image" 
                                           onError={(e) => {
-                                            const img = e.target;
-                                            if (!img.dataset.proxied) {
-                                              img.dataset.proxied = '1';
-                                              img.src = getProxiedImageUrl(img.src);
-                                            } else {
-                                              img.style.display = 'none';
-                                            }
+                                            e.target.style.display = 'none';
                                           }}
                                         />
                                       )}
