@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { formatRelativeTime } from '../../utils/dateUtils';
+import { getProxiedImageUrl } from '../../services/api';
 import './ArticleCard.css';
 
 // Full-featured article card
@@ -8,6 +9,18 @@ function ArticleCard({ article, featured = false }) {
   // Handle featured_image which can be an object or null
   const featuredImageUrl = article.featured_image?.url || article.featured_image;
   const imageAlt = article.featured_image?.alt_text || article.title;
+  
+  const handleImageError = (e) => {
+    // If image fails to load, try using the proxy
+    if (!e.target.dataset.proxied) {
+      e.target.dataset.proxied = 'true';
+      e.target.src = getProxiedImageUrl(featuredImageUrl);
+    } else {
+      // If proxy also fails, hide the image
+      e.target.closest('.article-card__image-link').style.display = 'none';
+      e.target.closest('.article-card').classList.add('article-card--no-image');
+    }
+  };
   
   return (
     <article className={`article-card ${featured ? 'article-card--featured' : ''} ${!featuredImageUrl ? 'article-card--no-image' : ''}`}>
@@ -17,10 +30,7 @@ function ArticleCard({ article, featured = false }) {
             src={featuredImageUrl} 
             alt={imageAlt}
             className="article-card__image"
-            onError={(e) => {
-              e.target.closest('.article-card__image-link').style.display = 'none';
-              e.target.closest('.article-card').classList.add('article-card--no-image');
-            }}
+            onError={handleImageError}
           />
         </Link>
       )}
@@ -75,6 +85,18 @@ function ArticleCardCompact({ article, showImage = true, showCategory = true }) 
   const featuredImageUrl = article.featured_image?.url || article.featured_image;
   const imageAlt = article.featured_image?.alt_text || article.title;
   
+  const handleImageError = (e) => {
+    // If image fails to load, try using the proxy
+    if (!e.target.dataset.proxied) {
+      e.target.dataset.proxied = 'true';
+      e.target.src = getProxiedImageUrl(featuredImageUrl);
+    } else {
+      // If proxy also fails, hide the image
+      e.target.closest('.article-card-compact__image-link').style.display = 'none';
+      e.target.closest('.article-card-compact').classList.add('article-card-compact--no-image');
+    }
+  };
+  
   return (
     <article className={`article-card-compact ${!featuredImageUrl || !showImage ? 'article-card-compact--no-image' : ''}`}>
       {showImage && featuredImageUrl && (
@@ -83,10 +105,7 @@ function ArticleCardCompact({ article, showImage = true, showCategory = true }) 
             src={featuredImageUrl} 
             alt={imageAlt}
             className="article-card-compact__image"
-            onError={(e) => {
-              e.target.closest('.article-card-compact__image-link').style.display = 'none';
-              e.target.closest('.article-card-compact').classList.add('article-card-compact--no-image');
-            }}
+            onError={handleImageError}
           />
         </Link>
       )}
@@ -120,6 +139,17 @@ function ArticleCardHero({ article }) {
   const featuredImageUrl = article.featured_image?.url || article.featured_image;
   const imageAlt = article.featured_image?.alt_text || article.title;
   
+  const handleImageError = (e) => {
+    // If image fails to load, try using the proxy
+    if (!e.target.dataset.proxied) {
+      e.target.dataset.proxied = 'true';
+      e.target.src = getProxiedImageUrl(featuredImageUrl);
+    } else {
+      // If proxy also fails, hide the image
+      e.target.style.display = 'none';
+    }
+  };
+  
   return (
     <article className="article-card-hero">
       <Link to={`/article/${article.slug}`} className="article-card-hero__image-link">
@@ -128,9 +158,7 @@ function ArticleCardHero({ article }) {
             src={featuredImageUrl} 
             alt={imageAlt}
             className="article-card-hero__image"
-            onError={(e) => {
-              e.target.style.display = 'none';
-            }}
+            onError={handleImageError}
           />
         )}
         <div className="article-card-hero__overlay">

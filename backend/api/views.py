@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.db import models
+from django.http import HttpResponse
 from .models import User
 from rest_framework import generics, status, viewsets, filters, serializers
 from rest_framework.decorators import api_view, permission_classes, action
@@ -10,6 +11,7 @@ from django.utils import timezone
 from django.core.cache import cache
 from datetime import timedelta
 import hashlib
+import requests
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -514,3 +516,46 @@ def mark_social_post_posted(request, post_id):
             {'detail': 'Social post not found.'},
             status=status.HTTP_404_NOT_FOUND
         )
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def proxy_image(request):
+    """
+    Proxy external images to avoid CORS issues.
+    This endpoint fetches images from external URLs and serves them
+    to the frontend, bypassing CORS restrictions.
+    """
+    url = request.GET.get('url')
+    
+    if not url:
+        return HttpResponse('URL parameter is required', status=400)
+    
+    # Validate URL starts with http/https for security
+    if not url.startswith(('http://', 'https://')):
+        return HttpResponse('Invalid URL protocol', status=400)
+    
+    try:
+        # Fetch the image with timeout
+        response = requests.get(url, timeout=10, stream=True)
+        response.raise_for_status()
+        
+        # Get content type from response, default to jpeg
+        content_type = response.headers.get('Content-Type', 'image/jpeg')
+        
+        # Create Django HttpResponse with the image content
+        django_response = HttpResponse(
+            response.content,
+            content_type=content_type
+        )
+        
+        # Set cache headers for better performance (cache for 1 day)
+        django_response['Cache-Control'] = 'public, max-age=86400'
+        
+        return django_response
+        
+    except requests.Timeout:
+        return HttpResponse('Request timeout while fetching image', status=504)
+    except requests.RequestException as e:
+        return HttpResponse(f'Failed to fetch image: {str(e)}', status=500)
+

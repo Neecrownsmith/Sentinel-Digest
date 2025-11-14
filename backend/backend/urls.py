@@ -20,7 +20,8 @@ from rest_framework.routers import DefaultRouter
 from api.views import (
     CreateUserView, get_user_profile, update_user_profile,
     ArticleViewSet, CategoryViewSet, TagViewSet, SearchViewSet,
-    EmailTokenObtainPairView, get_pending_social_posts, mark_social_post_posted
+    EmailTokenObtainPairView, get_pending_social_posts, mark_social_post_posted,
+    proxy_image
 )
 from jobs.views import JobViewSet, JobCategoryViewSet
 from api.oauth_views import GoogleLogin, FacebookLogin, TwitterLogin, social_login, oauth_redirect
@@ -64,6 +65,9 @@ urlpatterns = [
     
     # API Router (articles, categories, tags, search)
     path('api/', include(router.urls)),
+    
+    # Image proxy endpoint for CORS-blocked images
+    path('api/proxy-image/', proxy_image, name='proxy_image'),
     
     # Social Media Posts endpoints (must be after router to avoid conflicts)
     path('api/social-posts/pending/', get_pending_social_posts, name='pending_social_posts'),

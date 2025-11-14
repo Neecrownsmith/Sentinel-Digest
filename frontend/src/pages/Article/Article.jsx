@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { articlesAPI } from '../../services/api';
+import { articlesAPI, getProxiedImageUrl } from '../../services/api';
 import { ArticleCardCompact } from '../../components/ArticleCard/ArticleCard';
 import { formatDateTime } from '../../utils/dateUtils';
 import { useAuth } from '../../context/AuthContext';
@@ -290,7 +290,7 @@ function Article() {
         html += `
           <figure class="article-image-inline">
               <img src="${imgSrc}" alt="${imgAlt}"
-                   onerror="if(!this.dataset.proxied){this.dataset.proxied=1;this.src='/api/proxy-image/?url='+encodeURIComponent(this.src);}else{this.style.display='none';}" />
+                   onerror="if(!this.dataset.proxied){this.dataset.proxied='true';this.src='${getProxiedImageUrl(imgSrc).replace(/'/g, "\\'")}'}else{this.style.display='none';}" />
             ${imgCaption ? `<figcaption>${imgCaption}</figcaption>` : ''}
           </figure>
         `;
@@ -372,7 +372,14 @@ function Article() {
             src={article.featured_image} 
             alt={article.title}
             onError={(e) => {
-              e.target.style.display = 'none';
+              // If image fails to load, try using the proxy
+              if (!e.target.dataset.proxied) {
+                e.target.dataset.proxied = 'true';
+                e.target.src = getProxiedImageUrl(article.featured_image);
+              } else {
+                // If proxy also fails, hide the image
+                e.target.style.display = 'none';
+              }
             }}
           />
         </div>

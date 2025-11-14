@@ -6,6 +6,16 @@ import { getApiConfig } from '../utils/env';
 const { apiUrl } = getApiConfig();
 const API_BASE_URL = apiUrl;
 
+// Utility function to proxy images that fail due to CORS
+export const getProxiedImageUrl = (imageUrl) => {
+  if (!imageUrl) return null;
+  // If it's already a proxied URL or a relative URL, return as-is
+  if (imageUrl.includes('/api/proxy-image/') || !imageUrl.startsWith('http')) {
+    return imageUrl;
+  }
+  return `${API_BASE_URL}/proxy-image/?url=${encodeURIComponent(imageUrl)}`;
+};
+
 // Create axios instance with defaults
 const api = axios.create({
   baseURL: API_BASE_URL,
