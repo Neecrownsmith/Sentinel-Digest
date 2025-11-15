@@ -20,6 +20,7 @@ class JobSerializer(serializers.ModelSerializer):
             'slug',
             'description',
             'category',
+            'apply_link',
             'status',
             'created_at',
             'updated_at',
@@ -40,6 +41,7 @@ class JobListSerializer(serializers.ModelSerializer):
             'slug',
             'excerpt',
             'category',
+            'apply_link',
             'created_at',
         ]
     

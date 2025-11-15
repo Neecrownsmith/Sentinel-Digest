@@ -4,7 +4,7 @@
   padding: 0;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 5000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -94,6 +94,8 @@
   grid-column: 2;
   display: flex;
   justify-content: center;
+  position: relative;
+  z-index: 5001;
 }
 
 .logo {
@@ -513,7 +515,7 @@
   margin-bottom: 0;  /* Removed margin to bring nav closer to logo */
   margin-top: -4px;  /* Negative margin to bring nav even closer */
   position: relative; /* ensure its children can stack above content */
-  z-index: 3000; /* above page content */
+  z-index: 4999; /* above page content but below logo */
 }
 
 .nav-container {

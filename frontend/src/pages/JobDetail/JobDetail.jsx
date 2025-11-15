@@ -11,6 +11,8 @@ function JobDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
+  const [relatedJobs, setRelatedJobs] = useState([]);
+  const [otherJobs, setOtherJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -27,6 +29,26 @@ function JobDetail() {
 
       const jobRes = await jobsAPI.getJob(slug);
       setJob(jobRes.data);
+
+      // Load related jobs from same category
+      if (jobRes.data.id) {
+        try {
+          const relatedRes = await jobsAPI.getRelated(slug, 5);
+          setRelatedJobs(relatedRes.data);
+        } catch (relatedErr) {
+          logger.error('Error loading related jobs', { error: relatedErr.message });
+        }
+
+        // Load other opportunities (general list)
+        try {
+          const othersRes = await jobsAPI.getJobs({ page: 1, limit: 8 });
+          // Filter out current job
+          const filtered = othersRes.data.results?.filter(j => j.id !== jobRes.data.id) || [];
+          setOtherJobs(filtered.slice(0, 5));
+        } catch (othersErr) {
+          logger.error('Error loading other jobs', { error: othersErr.message });
+        }
+      }
     } catch (err) {
       logger.error('Error loading job', { error: err.message, slug });
       setError(
@@ -123,8 +145,12 @@ function JobDetail() {
   }
 
   function handleApply() {
-    if (job?.application_link) {
+    if (job?.apply_link) {
+      window.open(job.apply_link, '_blank');
+    } else if (job?.application_link) {
       window.open(job.application_link, '_blank');
+    } else {
+      alert('Application link not available for this opportunity.');
     }
   }
 
@@ -159,73 +185,71 @@ function JobDetail() {
             </div>
           )}
 
-          <div className="job-header__content">
-            {job.category && (
-              <Link
-                to={`/opportunities/${job.category.slug}`}
-                className="job-header__category"
-              >
-                {job.category.name}
-              </Link>
-            )}
+          {job.category && (
+            <Link
+              to={`/opportunities/${job.category.slug}`}
+              className="job-header__category"
+            >
+              {job.category.name}
+            </Link>
+          )}
 
-            <h1 className="job-header__title">{job.role}</h1>
-            <p className="job-header__company">{job.company_name}</p>
+          <h1 className="job-header__title">{job.role}</h1>
+          <p className="job-header__company">{job.company_name}</p>
 
-            <div className="job-header__meta">
-              {job.location && (
-                <span className="job-meta-item">
-                  <span className="job-meta-icon">📍</span>
-                  {job.location}
-                </span>
-              )}
-              {job.job_type && (
-                <span className="job-meta-item">
-                  <span className="job-meta-icon">💼</span>
-                  {job.job_type}
-                </span>
-              )}
-              {job.salary && (
-                <span className="job-meta-item">
-                  <span className="job-meta-icon">💰</span>
-                  {job.salary}
-                </span>
-              )}
+          <div className="job-header__meta">
+            {job.location && (
               <span className="job-meta-item">
-                <span className="job-meta-icon">📅</span>
-                Posted {formatDateTime(job.created_at)}
+                <span className="job-meta-icon">📍</span>
+                {job.location}
               </span>
-              {job.deadline && (
-                <span className="job-meta-item job-meta-item--deadline">
-                  <span className="job-meta-icon">⏰</span>
-                  Deadline: {new Date(job.deadline).toLocaleDateString()}
-                </span>
-              )}
-            </div>
+            )}
+            {job.job_type && (
+              <span className="job-meta-item">
+                <span className="job-meta-icon">💼</span>
+                {job.job_type}
+              </span>
+            )}
+            {job.salary && (
+              <span className="job-meta-item">
+                <span className="job-meta-icon">💰</span>
+                {job.salary}
+              </span>
+            )}
+            <span className="job-meta-item">
+              <span className="job-meta-icon">📅</span>
+              Posted {formatDateTime(job.created_at)}
+            </span>
+            {job.deadline && (
+              <span className="job-meta-item job-meta-item--deadline">
+                <span className="job-meta-icon">⏰</span>
+                Deadline: {new Date(job.deadline).toLocaleDateString()}
+              </span>
+            )}
+          </div>
 
-            <div className="job-header__actions">
-              <button onClick={handleApply} className="btn-apply">
-                Apply Now
+          <div className="job-header__actions">
+            <button onClick={handleApply} className="btn-apply">
+              Apply Now
+            </button>
+            <div className="social-actions">
+              <button
+                onClick={() => setShowShareMenu(!showShareMenu)}
+                className="btn-action btn-share"
+                title="Share"
+              >
+                <span>Share</span>
               </button>
-              <div className="social-actions">
-                <button
-                  onClick={() => setShowShareMenu(!showShareMenu)}
-                  className="btn-action btn-share"
-                  title="Share"
-                >
-                  <span>Share</span>
-                </button>
 
-                {showShareMenu && (
-                  <div className="share-menu">
-                    <button onClick={() => handleShare('linkedin')}>LinkedIn</button>
-                    <button onClick={() => handleShare('twitter')}>Twitter</button>
-                    <button onClick={() => handleShare('facebook')}>Facebook</button>
-                    <button onClick={() => handleShare('whatsapp')}>WhatsApp</button>
-                    <button onClick={() => handleShare('copy')}>Copy Link</button>
-                  </div>
-                )}
-              </div>
+              {showShareMenu && (
+                <div className="share-menu">
+                  <button onClick={() => handleShare('linkedin')}>LinkedIn</button>
+                  <button onClick={() => handleShare('twitter')}>Twitter</button>
+                  <button onClick={() => handleShare('facebook')}>Facebook</button>
+                  <button onClick={() => handleShare('whatsapp')}>WhatsApp</button>
+                  <button onClick={() => handleShare('copy')}>Copy Link</button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -314,48 +338,42 @@ function JobDetail() {
 
           {/* Sidebar */}
           <aside className="job-content__sidebar">
-            {/* Company Info */}
-            <div className="sidebar-card">
-              <h3 className="sidebar-card__title">About {job.company_name}</h3>
-              {job.company_description && (
-                <p className="sidebar-card__text">{job.company_description}</p>
-              )}
-              {job.company_website && (
-                <a
-                  href={job.company_website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="sidebar-card__link"
-                >
-                  Visit Company Website →
-                </a>
-              )}
-            </div>
-
-            {/* Job Details */}
-            <div className="sidebar-card">
-              <h3 className="sidebar-card__title">Job Details</h3>
-              <div className="job-details-list">
-                {job.experience_level && (
-                  <div className="job-detail-row">
-                    <strong>Experience:</strong>
-                    <span>{job.experience_level}</span>
-                  </div>
-                )}
-                {job.employment_type && (
-                  <div className="job-detail-row">
-                    <strong>Type:</strong>
-                    <span>{job.employment_type}</span>
-                  </div>
-                )}
-                {job.remote_allowed !== undefined && (
-                  <div className="job-detail-row">
-                    <strong>Remote:</strong>
-                    <span>{job.remote_allowed ? 'Yes' : 'No'}</span>
-                  </div>
-                )}
+            {/* More Opportunities in Category */}
+            {relatedJobs.length > 0 && (
+              <div className="sidebar-section">
+                <h3 className="sidebar-section__title">More Opportunities</h3>
+                <div className="sidebar-jobs-list">
+                  {relatedJobs.map(relatedJob => (
+                    <OpportunityCardCompact
+                      key={relatedJob.id}
+                      opportunity={relatedJob}
+                      showLogo={false}
+                      showCategory={false}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Other Opportunities */}
+            {otherJobs.length > 0 && (
+              <div className="sidebar-section">
+                <h3 className="sidebar-section__title">Other Opportunities</h3>
+                <div className="sidebar-jobs-list">
+                  {otherJobs.map(otherJob => (
+                    <OpportunityCardCompact
+                      key={otherJob.id}
+                      opportunity={otherJob}
+                      showLogo={false}
+                      showCategory={true}
+                    />
+                  ))}
+                </div>
+                <Link to="/opportunities" className="sidebar-view-all">
+                  Show All Opportunities →
+                </Link>
+              </div>
+            )}
           </aside>
         </div>
       </main>

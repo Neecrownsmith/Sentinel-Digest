@@ -89,3 +89,22 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
         
         serializer = self.get_serializer(jobs, many=True)
         return Response({'results': serializer.data})
+
+    @action(detail=True, methods=['get'])
+    def related(self, request, slug=None):
+        """
+        Get related jobs from the same category
+        """
+        try:
+            job = self.get_object()
+            limit = int(request.query_params.get('limit', 5))
+            
+            # Get other jobs in same category, excluding current job
+            related_jobs = self.get_queryset().filter(
+                category=job.category
+            ).exclude(id=job.id)[:limit]
+            
+            serializer = JobListSerializer(related_jobs, many=True)
+            return Response(serializer.data)
+        except Job.DoesNotExist:
+            return Response({'detail': 'Job not found'}, status=status.HTTP_404_NOT_FOUND)

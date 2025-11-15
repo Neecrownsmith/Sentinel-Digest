@@ -37,6 +37,7 @@ class Job(models.Model):
         null=True, 
         related_name='jobs'
     )
+    apply_link = models.URLField(max_length=500, null=True, blank=True)
    
     source_url = models.ForeignKey(
         ScrapedJob,

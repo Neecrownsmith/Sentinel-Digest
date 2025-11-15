@@ -18,3 +18,10 @@ django-allauth
 dj-rest-auth
 cryptography
 html2text
+openai
+beautifulsoup4
+fake_useragent
+feedparser
+faiss-cpu
+sentence_transformers
+

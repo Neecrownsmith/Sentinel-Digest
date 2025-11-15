@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { articlesAPI, categoriesAPI } from '../../services/api';
-import { ArticleCard, ArticleCardCompact, ArticleCardHero } from '../../components/ArticleCard/ArticleCard';
+import { articlesAPI, categoriesAPI, getProxiedImageUrl } from '../../services/api';
+import { formatRelativeTime } from '../../utils/dateUtils';
+import { CShapedHeroLayout, FeaturedGridLayout, GridLayout, HeroGridLayout,
+      HShapedHeroLayout, ListLayout, LShapedHeroLayout, MasonryLayout,
+  OShapedHeroLayout, TShapedHeroLayout, UShapedHeroLayout } from '../../layout';
 import './Category.css';
 
 function Category() {
@@ -87,69 +90,16 @@ function Category() {
       <section className="category-content">
         <div className="category-content__container">
           {articles.length > 0 ? (
-            <>
-              {/* Guardian-style three-column layout on desktop */}
-              <div className="category-layout">
-                {/* Left column: compact headline list */}
-                <aside className="cat-col cat-col-left">
-                  <h3 className="cat-section-title">Latest</h3>
-                  <div className="cat-left-list">
-                    {articles.slice(0, 8).map((a) => (
-                      <ArticleCardCompact
-                        key={a.id}
-                        article={a}
-                        showImage={false}
-                        showCategory={false}
-                      />
-                    ))}
-                  </div>
-                </aside>
+            <div className="category-layout">
+              {/* Main content area */}
+              <div className="category-main">
+                {/* L-Shaped Hero Layout */}
 
-                {/* Middle column: hero + featured + grid */}
-                <div className="cat-col cat-col-middle">
-                  {/* Hero story */}
-                  {articles[0] && (
-                    <div className="cat-hero">
-                      <ArticleCardHero article={articles[0]} />
-                    </div>
-                  )}
+                <HeroGridLayout articles={articles} />
 
-                  {/* Two featured cards side-by-side */}
-                  {articles.length > 1 && (
-                    <div className="cat-featured-row">
-                      {articles.slice(1, 3).map((a) => (
-                        <ArticleCard key={a.id} article={a} featured />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Standard grid */}
-                  <div className="cat-middle-grid">
-                    {articles.slice(3, 9).map((a) => (
-                      <ArticleCard key={a.id} article={a} />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Right column: compact list with small thumbnails */}
-                <aside className="cat-col cat-col-right">
-                  <h3 className="cat-section-title">More Stories</h3>
-                  <div className="cat-right-list">
-                    {articles.slice(9, 20).map((a) => (
-                      <ArticleCardCompact
-                        key={a.id}
-                        article={a}
-                        showImage={true}
-                        showCategory={false}
-                      />
-                    ))}
-                  </div>
-                </aside>
-              </div>
-
-              {/* Pagination */}
-              {pagination && pagination.totalPages > 1 && (
-                <div className="pagination">
+                {/* Pagination */}
+                {pagination && pagination.totalPages > 1 && (
+                  <div className="pagination">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={!pagination.previous}
@@ -171,7 +121,85 @@ function Category() {
                   </button>
                 </div>
               )}
-            </>
+              </div>
+
+              {/* Sidebar */}
+              <aside className="category-sidebar">
+                {/* Latest section */}
+                <div className="category-sidebar-section">
+                  <h3 className="category-section-title">Latest</h3>
+                  <div className="category-sidebar-list">
+                    {articles.slice(0, 10).map((article) => {
+                      const featuredImageUrl = article.featured_image?.url || article.featured_image;
+                      return (
+                        <div key={article.id} className="category-sidebar-item">
+                          <a href={`/article/${article.slug}`} className="category-sidebar-link">
+                            {featuredImageUrl && (
+                              <img 
+                                src={featuredImageUrl} 
+                                alt={article.featured_image?.alt_text || article.title}
+                                className="category-sidebar-image"
+                                onError={(e) => {
+                                  const proxiedUrl = getProxiedImageUrl(featuredImageUrl);
+                                  if (proxiedUrl && e.target.src !== proxiedUrl) {
+                                    e.target.src = proxiedUrl;
+                                  } else {
+                                    e.target.style.display = 'none';
+                                  }
+                                }}
+                              />
+                            )}
+                            <div className="category-sidebar-content">
+                              <h4 className="category-sidebar-title">{article.title}</h4>
+                              <time className="category-sidebar-date" dateTime={article.created_at}>
+                                {formatRelativeTime(article.created_at)}
+                              </time>
+                            </div>
+                          </a>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* More Stories section */}
+                <div className="category-sidebar-section">
+                  <h3 className="category-section-title">More Stories</h3>
+                  <div className="category-sidebar-list">
+                    {articles.slice(10, 20).map((article) => {
+                      const featuredImageUrl = article.featured_image?.url || article.featured_image;
+                      return (
+                        <div key={article.id} className="category-sidebar-item">
+                          <a href={`/article/${article.slug}`} className="category-sidebar-link">
+                            {featuredImageUrl && (
+                              <img 
+                                src={featuredImageUrl} 
+                                alt={article.featured_image?.alt_text || article.title}
+                                className="category-sidebar-image"
+                                onError={(e) => {
+                                  const proxiedUrl = getProxiedImageUrl(featuredImageUrl);
+                                  if (proxiedUrl && e.target.src !== proxiedUrl) {
+                                    e.target.src = proxiedUrl;
+                                  } else {
+                                    e.target.style.display = 'none';
+                                  }
+                                }}
+                              />
+                            )}
+                            <div className="category-sidebar-content">
+                              <h4 className="category-sidebar-title">{article.title}</h4>
+                              <time className="category-sidebar-date" dateTime={article.created_at}>
+                                {formatRelativeTime(article.created_at)}
+                              </time>
+                            </div>
+                          </a>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </aside>
+            </div>
           ) : (
             <div className="category-empty">
               <p>No articles found in this category.</p>

@@ -13,6 +13,7 @@ function Article() {
   const { isAuthenticated, user } = useAuth();
   const [article, setArticle] = useState(null);
   const [relatedArticles, setRelatedArticles] = useState([]);
+  const [mostRead, setMostRead] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -54,6 +55,16 @@ function Article() {
           setRelatedArticles(relatedRes.data);
         } catch (relatedErr) {
           console.error('Error loading related articles:', relatedErr);
+        }
+
+        // Load most read articles
+        try {
+          const mostReadRes = await articlesAPI.getMostRead({ period: 'week', limit: 5 });
+          // Filter out current article
+          const filtered = mostReadRes.data.filter(a => a.id !== articleData.id);
+          setMostRead(filtered);
+        } catch (mostReadErr) {
+          console.error('Error loading most read articles:', mostReadErr);
         }
       }
     } catch (err) {
@@ -592,18 +603,37 @@ function Article() {
           {/* Sidebar */}
           <aside className="article-sidebar">
             {relatedArticles.length > 0 && (
-              <div className="sidebar-section">
-                <h3 className="sidebar-title">Related Articles</h3>
-                <div className="sidebar-list">
+              <div className="sidebar-section-card">
+                <h3 className="sidebar-section-card__title">Related Articles</h3>
+                <div className="sidebar-articles-list">
                   {relatedArticles.map(relatedArticle => (
                     <ArticleCardCompact 
                       key={relatedArticle.id}
                       article={relatedArticle}
                       showImage={true}
+                      showCategory={false}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {mostRead.length > 0 && (
+              <div className="sidebar-section-card">
+                <h3 className="sidebar-section-card__title">People are also reading</h3>
+                <div className="sidebar-articles-list">
+                  {mostRead.map(article => (
+                    <ArticleCardCompact 
+                      key={article.id}
+                      article={article}
+                      showImage={true}
                       showCategory={true}
                     />
                   ))}
                 </div>
+                <Link to="/" className="sidebar-view-all">
+                  View All Articles →
+                </Link>
               </div>
             )}
           </aside>

@@ -94,7 +94,7 @@ try:
 
             # Get or create category
             category_name = scraped_data.get('category', 'Job')
-            if category_name.lower() in KNOWN_CATEGORIES:
+            if category_name.lower().strip() in KNOWN_CATEGORIES:
                 category_name = category_name.capitalize()
             else:
                 category_name = 'Job'
@@ -106,7 +106,8 @@ try:
                 role=scraped_data.get('role', ''),
                 description=scraped_data.get('description', ''),
                 category=category,
-                source_url=scraped_job_obj
+                source_url=scraped_job_obj,
+                apply_link=scraped_data.get('apply_link', '')
             )
 
             # Encode job for similarity checking

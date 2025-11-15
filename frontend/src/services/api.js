@@ -219,6 +219,10 @@ export const jobsAPI = {
   // Search jobs
   search: (query, params = {}) => 
     api.get('/jobs/search/', { params: { q: query, ...params } }),
+
+  // Get related jobs
+  getRelated: (slug, limit = 5) => 
+    api.get(`/jobs/${slug}/related/`, { params: { limit } }),
 };
 
 // Job Categories API

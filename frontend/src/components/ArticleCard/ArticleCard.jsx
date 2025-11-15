@@ -5,22 +5,10 @@ import { getProxiedImageUrl } from '../../services/api';
 import './ArticleCard.css';
 
 // Full-featured article card
-function ArticleCard({ article, featured = false }) {
+function ArticleCard({ article, featured = false, showExcerpt = true }) {
   // Handle featured_image which can be an object or null
   const featuredImageUrl = article.featured_image?.url || article.featured_image;
   const imageAlt = article.featured_image?.alt_text || article.title;
-  
-  const handleImageError = (e) => {
-    // If image fails to load, try using the proxy
-    if (!e.target.dataset.proxied) {
-      e.target.dataset.proxied = 'true';
-      e.target.src = getProxiedImageUrl(featuredImageUrl);
-    } else {
-      // If proxy also fails, hide the image
-      e.target.closest('.article-card__image-link').style.display = 'none';
-      e.target.closest('.article-card').classList.add('article-card--no-image');
-    }
-  };
   
   return (
     <article className={`article-card ${featured ? 'article-card--featured' : ''} ${!featuredImageUrl ? 'article-card--no-image' : ''}`}>
@@ -30,7 +18,15 @@ function ArticleCard({ article, featured = false }) {
             src={featuredImageUrl} 
             alt={imageAlt}
             className="article-card__image"
-            onError={handleImageError}
+            onError={(e) => {
+              const proxiedUrl = getProxiedImageUrl(featuredImageUrl);
+              if (proxiedUrl && e.target.src !== proxiedUrl) {
+                e.target.src = proxiedUrl;
+              } else {
+                e.target.closest('.article-card__image-link').style.display = 'none';
+                e.target.closest('.article-card').classList.add('article-card--no-image');
+              }
+            }}
           />
         </Link>
       )}
@@ -51,7 +47,9 @@ function ArticleCard({ article, featured = false }) {
           </Link>
         </h3>
         
-        <p className="article-card__excerpt">{article.excerpt}</p>
+        {showExcerpt && article.excerpt && (
+          <p className="article-card__excerpt">{article.excerpt}</p>
+        )}
         
         <div className="article-card__meta">
           <time className="article-card__date" dateTime={article.created_at}>
@@ -85,18 +83,6 @@ function ArticleCardCompact({ article, showImage = true, showCategory = true }) 
   const featuredImageUrl = article.featured_image?.url || article.featured_image;
   const imageAlt = article.featured_image?.alt_text || article.title;
   
-  const handleImageError = (e) => {
-    // If image fails to load, try using the proxy
-    if (!e.target.dataset.proxied) {
-      e.target.dataset.proxied = 'true';
-      e.target.src = getProxiedImageUrl(featuredImageUrl);
-    } else {
-      // If proxy also fails, hide the image
-      e.target.closest('.article-card-compact__image-link').style.display = 'none';
-      e.target.closest('.article-card-compact').classList.add('article-card-compact--no-image');
-    }
-  };
-  
   return (
     <article className={`article-card-compact ${!featuredImageUrl || !showImage ? 'article-card-compact--no-image' : ''}`}>
       {showImage && featuredImageUrl && (
@@ -105,7 +91,15 @@ function ArticleCardCompact({ article, showImage = true, showCategory = true }) 
             src={featuredImageUrl} 
             alt={imageAlt}
             className="article-card-compact__image"
-            onError={handleImageError}
+            onError={(e) => {
+              const proxiedUrl = getProxiedImageUrl(featuredImageUrl);
+              if (proxiedUrl && e.target.src !== proxiedUrl) {
+                e.target.src = proxiedUrl;
+              } else {
+                e.target.closest('.article-card-compact__image-link').style.display = 'none';
+                e.target.closest('.article-card-compact').classList.add('article-card-compact--no-image');
+              }
+            }}
           />
         </Link>
       )}
@@ -134,21 +128,64 @@ function ArticleCardCompact({ article, showImage = true, showCategory = true }) 
   );
 }
 
-// Hero article card (for large featured articles)
-function ArticleCardHero({ article }) {
+// Vertical article card (for grid layouts)
+function ArticleCardVertical({ article, showCategory = false }) {
   const featuredImageUrl = article.featured_image?.url || article.featured_image;
   const imageAlt = article.featured_image?.alt_text || article.title;
   
-  const handleImageError = (e) => {
-    // If image fails to load, try using the proxy
-    if (!e.target.dataset.proxied) {
-      e.target.dataset.proxied = 'true';
-      e.target.src = getProxiedImageUrl(featuredImageUrl);
-    } else {
-      // If proxy also fails, hide the image
-      e.target.style.display = 'none';
-    }
-  };
+  return (
+    <article className="article-card-vertical">
+      {featuredImageUrl && (
+        <Link to={`/article/${article.slug}`} className="article-card-vertical__image-link">
+          <img 
+            src={featuredImageUrl} 
+            alt={imageAlt}
+            className="article-card-vertical__image"
+            onError={(e) => {
+              const proxiedUrl = getProxiedImageUrl(featuredImageUrl);
+              if (proxiedUrl && e.target.src !== proxiedUrl) {
+                e.target.src = proxiedUrl;
+              } else {
+                e.target.closest('.article-card-vertical__image-link').style.display = 'none';
+              }
+            }}
+          />
+        </Link>
+      )}
+      
+      <div className="article-card-vertical__content">
+        {showCategory && article.category && (
+          <Link 
+            to={`/category/${article.category.slug || article.category_slug}`} 
+            className="article-card-vertical__category"
+          >
+            {article.category.name || article.category}
+          </Link>
+        )}
+        
+        <h4 className="article-card-vertical__title">
+          <Link to={`/article/${article.slug}`}>
+            {article.title}
+          </Link>
+        </h4>
+        
+        <div className="article-card-vertical__meta">
+          <time className="article-card-vertical__date" dateTime={article.created_at}>
+            {formatRelativeTime(article.created_at)}
+          </time>
+          {article.reading_time && (
+            <span className="article-card-vertical__reading-time">{article.reading_time}</span>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+// Hero article card (for large featured articles)
+function ArticleCardHero({ article, showExcerpt = true }) {
+  const featuredImageUrl = article.featured_image?.url || article.featured_image;
+  const imageAlt = article.featured_image?.alt_text || article.title;
   
   return (
     <article className="article-card-hero">
@@ -158,7 +195,14 @@ function ArticleCardHero({ article }) {
             src={featuredImageUrl} 
             alt={imageAlt}
             className="article-card-hero__image"
-            onError={handleImageError}
+            onError={(e) => {
+              const proxiedUrl = getProxiedImageUrl(featuredImageUrl);
+              if (proxiedUrl && e.target.src !== proxiedUrl) {
+                e.target.src = proxiedUrl;
+              } else {
+                e.target.style.display = 'none';
+              }
+            }}
           />
         )}
         <div className="article-card-hero__overlay">
@@ -168,7 +212,9 @@ function ArticleCardHero({ article }) {
             </span>
           )}
           <h2 className="article-card-hero__title">{article.title}</h2>
-          <p className="article-card-hero__excerpt">{article.excerpt}</p>
+          {showExcerpt && article.excerpt && (
+            <p className="article-card-hero__excerpt">{article.excerpt}</p>
+          )}
           <div className="article-card-hero__meta">
             <time dateTime={article.created_at}>
               {formatRelativeTime(article.created_at)}
@@ -182,6 +228,8 @@ function ArticleCardHero({ article }) {
     </article>
   );
 }
+
+
 
 // PropTypes validation
 const articlePropType = PropTypes.shape({
@@ -215,7 +263,8 @@ const articlePropType = PropTypes.shape({
 
 ArticleCard.propTypes = {
   article: articlePropType.isRequired,
-  featured: PropTypes.bool
+  featured: PropTypes.bool,
+  showExcerpt: PropTypes.bool
 };
 
 ArticleCardCompact.propTypes = {
@@ -224,8 +273,15 @@ ArticleCardCompact.propTypes = {
   showCategory: PropTypes.bool
 };
 
-ArticleCardHero.propTypes = {
-  article: articlePropType.isRequired
+ArticleCardVertical.propTypes = {
+  article: articlePropType.isRequired,
+  showCategory: PropTypes.bool
 };
 
-export { ArticleCard, ArticleCardCompact, ArticleCardHero };
+ArticleCardHero.propTypes = {
+  article: articlePropType.isRequired,
+  showExcerpt: PropTypes.bool
+};
+
+
+export { ArticleCard, ArticleCardCompact, ArticleCardVertical, ArticleCardHero };

@@ -1,0 +1,248 @@
+/* L-Shaped Hero Layout Styles - Demure & Refined */
+.l-shaped-layout {
+  width: 100%;
+  margin-bottom: 2.5rem;
+}
+
+/* L-shaped container */
+.l-shaped-container {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid #f5f5f5;
+  box-shadow: none;
+}
+
+/* Top horizontal bar of L - subtle and refined */
+.l-shaped-top {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: #f8f8f8;
+  border: 1px solid #f0f0f0;
+  margin-bottom: 1px;
+}
+
+.l-shaped-top .article-card-compact {
+  background: #fff;
+  padding: 18px;
+  border: none;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.l-shaped-top .article-card-compact:hover {
+  background: #fafafa;
+  transform: none;
+}
+
+.l-shaped-top .article-card-compact__image-link {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.l-shaped-top .article-card-compact__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.2s ease;
+}
+
+.l-shaped-top .article-card-compact:hover .article-card-compact__image {
+  opacity: 0.9;
+  transform: none;
+}
+
+.l-shaped-top .article-card-compact__content {
+  flex: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.l-shaped-top .article-card-compact__title {
+  font-size: 0.938rem;
+  line-height: 1.45;
+  font-weight: 500;
+  margin: 0 0 6px 0;
+  color: #2c2c2c;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+.l-shaped-top .article-card-compact:hover .article-card-compact__title {
+  color: #000;
+}
+
+.l-shaped-top .article-card-compact__date {
+  font-size: 0.688rem;
+  color: #999;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+/* Bottom section with left vertical bar and hero */
+.l-shaped-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: #f8f8f8;
+  border: 1px solid #f0f0f0;
+  border-top: none;
+}
+
+/* Left vertical bar of L */
+.l-shaped-left {
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: #f8f8f8;
+}
+
+.l-shaped-left .article-card-compact {
+  background: #fff;
+  padding: 18px;
+  border: none;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.l-shaped-left .article-card-compact:hover {
+  background: #fafafa;
+  transform: none;
+}
+
+.l-shaped-left .article-card-compact__image-link {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.l-shaped-left .article-card-compact__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.2s ease;
+}
+
+.l-shaped-left .article-card-compact:hover .article-card-compact__image {
+  opacity: 0.9;
+  transform: none;
+}
+
+.l-shaped-left .article-card-compact__content {
+  flex: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.l-shaped-left .article-card-compact__title {
+  font-size: 0.938rem;
+  line-height: 1.45;
+  font-weight: 500;
+  margin: 0 0 6px 0;
+  color: #2c2c2c;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+.l-shaped-left .article-card-compact:hover .article-card-compact__title {
+  color: #000;
+}
+
+.l-shaped-left .article-card-compact__date {
+  font-size: 0.688rem;
+  color: #999;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+/* Hero in center space - 2x2 grid, demure presentation */
+.l-shaped-hero {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1px;
+  background: #f8f8f8;
+}
+
+.l-shaped-hero .article-card-vertical {
+  margin: 0;
+  height: 100%;
+}
+
+/* Additional articles grid below */
+.l-shaped-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Empty state - soft and demure */
+.layout-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  color: #999;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .l-shaped-bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .l-shaped-hero {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .l-shaped-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .l-shaped-top {
+    grid-template-columns: 1fr;
+  }
+
+  .l-shaped-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .l-shaped-grid {
+    grid-template-columns: 1fr;
+  }
+}

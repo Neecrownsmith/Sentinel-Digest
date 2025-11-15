@@ -191,11 +191,108 @@
   color: #666;
 }
 
+/* Vertical Article Card */
+.article-card-vertical {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  height: 100%;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.article-card-vertical:hover {
+  background: #f8f9fa;
+}
+
+.article-card-vertical__image-link {
+  display: block;
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.article-card-vertical__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.article-card-vertical:hover .article-card-vertical__image {
+  transform: scale(1.05);
+}
+
+.article-card-vertical__content {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.article-card-vertical__category {
+  display: inline-block;
+  font-size: 0.688rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #666;
+  margin-bottom: 8px;
+  text-decoration: none;
+}
+
+.article-card-vertical__category:hover {
+  color: #0066cc;
+}
+
+.article-card-vertical__title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 auto;
+  color: #1a1a1a;
+}
+
+.article-card-vertical__title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.article-card-vertical__title a:hover {
+  color: #0066cc;
+}
+
+.article-card-vertical__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 12px;
+}
+
+.article-card-vertical__date {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 500;
+}
+
+.article-card-vertical__reading-time {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 500;
+}
+
+.article-card-vertical__reading-time::before {
+  content: '•';
+  margin-right: 0.5rem;
+}
+
 /* Hero Article Card */
 .article-card-hero {
   position: relative;
   width: 100%;
-  height: 500px;
+  height: 100%;
+  min-height: 300px;
   overflow: hidden;
   background: #000;
 }
@@ -211,13 +308,13 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.8;
+  opacity: 0.85;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .article-card-hero__image-link:hover .article-card-hero__image {
   opacity: 1;
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .article-card-hero__overlay {
@@ -225,50 +322,62 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 3rem;
-  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 70%, transparent 100%);
+  padding: 2rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
   color: #fff;
 }
 
 .article-card-hero__category {
   display: inline-block;
-  font-size: 0.813rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #fff;
   background: rgba(255, 255, 255, 0.2);
-  padding: 0.375rem 0.75rem;
-  margin-bottom: 1rem;
-  border-radius: 3px;
+  padding: 0.25rem 0.625rem;
+  margin-bottom: 0.75rem;
+  border-radius: 2px;
 }
 
 .article-card-hero__title {
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  line-height: 1.2;
-  margin: 0 0 1rem;
+  line-height: 1.3;
+  margin: 0 0 0.75rem;
   color: #fff;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .article-card-hero__excerpt {
-  font-size: 1.125rem;
+  font-size: 0.938rem;
   line-height: 1.5;
-  margin: 0 0 1rem;
-  max-width: 700px;
+  margin: 0 0 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .article-card-hero__meta {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  font-size: 0.938rem;
+  gap: 0.75rem;
+  font-size: 0.813rem;
+  opacity: 0.9;
 }
 
 .article-card-hero__reading-time::before {
   content: '•';
   margin-right: 0.5rem;
 }
+
+
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -277,19 +386,21 @@
   }
   
   .article-card-hero {
-    height: 400px;
+    min-height: 250px;
   }
   
   .article-card-hero__overlay {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1rem;
   }
   
   .article-card-hero__title {
-    font-size: 1.75rem;
+    font-size: 1.25rem;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
   
   .article-card-hero__excerpt {
-    font-size: 1rem;
+    font-size: 0.875rem;
   }
   
   .article-card-compact__image-link {
