@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     # Local apps
     'api',
     'articles',
+    'games',
     'jobs',
     'rewriter',
     'scraper',
