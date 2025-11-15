@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { articlesAPI, categoriesAPI } from '../../services/api';
+import { articlesAPI, categoriesAPI, jobsAPI } from '../../services/api';
 import { ArticleCard, ArticleCardCompact, ArticleCardHero } from '../../components/ArticleCard/ArticleCard';
+import { OpportunityCard } from '../../components/OpportunityCard/OpportunityCard';
 import { getDailyLayoutsForCategory, getLayoutRequirements } from '../../utils/layoutUtils';
 import './Home.css';
 
@@ -110,6 +111,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categoryHighlights, setCategoryHighlights] = useState([]);
+  const [featuredOpportunities, setFeaturedOpportunities] = useState([]);
   const categoryVariantDateKey = useMemo(() => getDailyDateKey(), []);
 
   const [PrimaryLayout, SecondaryLayout, primaryLayoutName, secondaryLayoutName] = useMemo(() => {
@@ -128,6 +130,7 @@ function Home() {
       setLoading(true);
       setError(null);
       setCategoryHighlights([]);
+      setFeaturedOpportunities([]);
 
       const layoutArticleCount = Math.max(primaryCount + secondaryCount, 0);
       const totalLatestNeeded = Math.max(layoutArticleCount + HOME_MORE_HEADLINES_COUNT, HOME_MORE_HEADLINES_COUNT);
@@ -188,7 +191,7 @@ function Home() {
       setMostRead(mostReadData);
       setLatestArticles(latestData);
 
-      await loadCategoryHighlights();
+      await Promise.allSettled([loadCategoryHighlights(), loadFeaturedOpportunities()]);
     } catch (err) {
       console.error('Error loading home data:', err);
       setError('Failed to load articles. Please try again later.');
@@ -249,6 +252,23 @@ function Home() {
     } catch (err) {
       console.warn('Failed to load category highlights', err);
       setCategoryHighlights([]);
+    }
+  }
+
+  async function loadFeaturedOpportunities() {
+    try {
+      const opportunitiesRes = await jobsAPI.getJobs({ page: 1, page_size: 6 });
+      const payload = opportunitiesRes?.data ?? [];
+      const opportunities = Array.isArray(payload?.results)
+        ? payload.results
+        : Array.isArray(payload)
+          ? payload
+          : [];
+
+      setFeaturedOpportunities(opportunities.slice(0, 6));
+    } catch (err) {
+      console.warn('Failed to load opportunities for home page', err);
+      setFeaturedOpportunities([]);
     }
   }
 
@@ -423,6 +443,24 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {featuredOpportunities.length > 0 && (
+        <section className="home-opportunities">
+          <div className="home-content__container">
+            <div className="home-opportunities__header">
+              <h3 className="home-opportunities__title">Latest Opportunities</h3>
+              <Link to="/opportunities" className="home-opportunities__link">
+                Browse all opportunities →
+              </Link>
+            </div>
+            <div className="home-opportunities__grid">
+              {featuredOpportunities.slice(0, 4).map((opportunity) => (
+                <OpportunityCard key={opportunity.id} opportunity={opportunity} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {moreHeadlineArticles.length > 0 && (
         <section className="home-more">

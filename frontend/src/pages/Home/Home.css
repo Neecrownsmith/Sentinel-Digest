@@ -535,6 +535,63 @@
   border-color: #000;
 }
 
+/* Opportunities */
+.home-opportunities {
+  padding: 3.25rem 0;
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+}
+
+.home-opportunities__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.home-opportunities__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+  color: #000;
+}
+
+.home-opportunities__link {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #000;
+  letter-spacing: 0.6px;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.home-opportunities__link:hover {
+  border-color: #000;
+  opacity: 0.75;
+}
+
+.home-opportunities__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.home-opportunities__grid .opportunity-card {
+  height: 100%;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  border-radius: 6px;
+  border: 1px solid #f1f5f9;
+}
+
+.home-opportunities__grid .opportunity-card__content {
+  padding-bottom: 1.5rem;
+}
+
 /* More Articles */
 .home-more {
   padding: 3rem 0;
@@ -565,6 +622,11 @@
   .home-featured__container,
   .home-content__container {
     padding: 0 1.5rem;
+  }
+
+  .home-opportunities__grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
   }
 }
 
@@ -599,6 +661,20 @@
   .home-content,
   .home-more {
     padding: 2.5rem 0;
+  }
+
+  .home-opportunities {
+    padding: 2.5rem 0;
+  }
+
+  .home-opportunities__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .home-opportunities__grid {
+    grid-template-columns: 1fr;
   }
 }
 
