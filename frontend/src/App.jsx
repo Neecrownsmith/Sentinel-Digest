@@ -10,6 +10,7 @@ import Home from './pages/Home/Home.jsx';
 import Article from './pages/Article/Article.jsx';
 import Category from './pages/Category/Category.jsx';
 import Tag from './pages/Tag/Tag.jsx';
+import Trending from './pages/Trending/Trending.jsx';
 import Search from './pages/Search/Search.jsx';
 import Login from './pages/Auth/Login.jsx';
 import Signup from './pages/Auth/Signup.jsx';
@@ -52,6 +53,7 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/article/:slug" element={<Article />} />
                   <Route path="/category/:slug" element={<Category />} />
+                  <Route path="/trending" element={<Trending />} />
                   <Route path="/tag/:slug" element={<Tag />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/login" element={<Login />} />

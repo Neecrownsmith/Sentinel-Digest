@@ -353,6 +353,9 @@ function Home() {
                       </div>
                     ))}
                   </div>
+                  <Link to="/trending" className="home-trending-more-link">
+                    See all trending stories →
+                  </Link>
                 </div>
               )}
 
