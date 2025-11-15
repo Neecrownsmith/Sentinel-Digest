@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { articlesAPI } from '../../services/api';
 import { ArticleCard } from '../../components/ArticleCard/ArticleCard';
 import './Search.css';
+import Seo from '../../components/common/Seo';
+import { SITE_URL } from '../../utils/env';
 
 function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -58,6 +60,23 @@ function Search() {
 
   return (
     <div className="search-page">
+      <Seo
+        title="Search"
+        description={currentQuery ? `Search results for ${currentQuery} on Sentinel Digest.` : 'Search Sentinel Digest for the latest stories and opportunities.'}
+        canonicalPath={currentQuery ? `/search?q=${encodeURIComponent(currentQuery)}` : '/search'}
+        noIndex
+        jsonLd={currentQuery ? {
+          '@context': 'https://schema.org',
+          '@type': 'SearchResultsPage',
+          name: `Search results for ${currentQuery}`,
+          url: SITE_URL ? `${SITE_URL}/search?q=${encodeURIComponent(currentQuery)}` : undefined,
+          mainEntity: articles.slice(0, 10).map((article) => ({
+            '@type': 'NewsArticle',
+            headline: article.title,
+            url: SITE_URL ? `${SITE_URL}/article/${article.slug}` : undefined,
+          })),
+        } : null}
+      />
       {/* Search Header */}
       <header className="search-header">
         <div className="search-header__container">

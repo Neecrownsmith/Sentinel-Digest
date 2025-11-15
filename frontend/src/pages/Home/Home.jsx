@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { articlesAPI, categoriesAPI, jobsAPI } from '../../services/api';
 import { ArticleCard, ArticleCardCompact, ArticleCardHero } from '../../components/ArticleCard/ArticleCard';
 import { OpportunityCard } from '../../components/OpportunityCard/OpportunityCard';
+import Seo from '../../components/common/Seo';
+import { SITE_URL } from '../../utils/env';
 import { getDailyLayoutsForCategory, getLayoutRequirements } from '../../utils/layoutUtils';
 import './Home.css';
 
@@ -281,6 +283,24 @@ function Home() {
   const additionalArticles = layoutAllocation.more;
   const moreHeadlineArticles = additionalArticles.slice(0, HOME_MORE_HEADLINES_COUNT);
 
+  const homepageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Sentinel Digest — Daily Briefing',
+    url: `${SITE_URL || ''}/`,
+    description: 'Daily curated news, analysis, and career opportunities from Sentinel Digest.',
+    inLanguage: 'en',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Sentinel Digest',
+      url: SITE_URL || undefined,
+    },
+    potentialAction: {
+      '@type': 'ReadAction',
+      target: SITE_URL ? `${SITE_URL}/` : undefined,
+    },
+  };
+
   if (loading) {
     return (
       <div className="home-loading">
@@ -301,6 +321,12 @@ function Home() {
 
   return (
     <div className="home-page">
+      <Seo
+        title="Home"
+        description="Get the latest stories, insights, and opportunities curated by Sentinel Digest to keep modern professionals informed."
+        canonicalPath="/"
+        jsonLd={homepageJsonLd}
+      />
       {topStories.length > 0 && (
         <section className="home-hero">
           <div className="home-hero__container">

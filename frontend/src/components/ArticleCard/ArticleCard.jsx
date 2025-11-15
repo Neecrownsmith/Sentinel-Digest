@@ -21,6 +21,8 @@ function ArticleCard({ article, featured = false, showExcerpt = true }) {
       {featuredImageUrl && (
         <Link to={`/article/${article.slug}`} className="article-card__image-link">
           <img 
+            loading="lazy"
+            decoding="async"
             src={featuredImageUrl} 
             alt={imageAlt}
             className="article-card__image"
@@ -94,6 +96,8 @@ function ArticleCardCompact({ article, showImage = true, showCategory = true }) 
       {showImage && featuredImageUrl && (
         <Link to={`/article/${article.slug}`} className="article-card-compact__image-link">
           <img 
+            loading="lazy"
+            decoding="async"
             src={featuredImageUrl} 
             alt={imageAlt}
             className="article-card-compact__image"
@@ -144,6 +148,8 @@ function ArticleCardVertical({ article, showCategory = false }) {
       {featuredImageUrl && (
         <Link to={`/article/${article.slug}`} className="article-card-vertical__image-link">
           <img 
+            loading="lazy"
+            decoding="async"
             src={featuredImageUrl} 
             alt={imageAlt}
             className="article-card-vertical__image"
@@ -198,6 +204,8 @@ function ArticleCardHero({ article, showExcerpt = true }) {
       <Link to={`/article/${article.slug}`} className="article-card-hero__image-link">
         {featuredImageUrl && (
           <img 
+            loading="lazy"
+            decoding="async"
             src={featuredImageUrl} 
             alt={imageAlt}
             className="article-card-hero__image"

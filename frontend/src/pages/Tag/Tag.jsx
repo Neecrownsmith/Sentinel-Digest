@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { ArticleCard } from '../../components/ArticleCard/ArticleCard';
 import { articlesAPI } from '../../services/api';
+import Seo from '../../components/common/Seo';
+import { SITE_URL } from '../../utils/env';
 import './Tag.css';
 
 function Tag() {
@@ -90,6 +92,38 @@ function Tag() {
 
   return (
     <div className="tag-page">
+      <Seo
+        title={`Tag: ${tagName || slug}`}
+        description={`Explore articles tagged with ${tagName || slug} on Sentinel Digest.`}
+        canonicalPath={`/tag/${slug}`}
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            name: `Articles tagged ${tagName || slug} | Sentinel Digest`,
+            description: `Curated stories tagged ${tagName || slug} from Sentinel Digest.`,
+            url: SITE_URL ? `${SITE_URL}/tag/${slug}` : undefined,
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: SITE_URL || undefined,
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: `Tag: ${tagName || slug}`,
+                item: SITE_URL ? `${SITE_URL}/tag/${slug}` : undefined,
+              },
+            ],
+          },
+        ]}
+      />
       <div className="tag-container">
         <header className="tag-header">
           <div className="tag-badge">

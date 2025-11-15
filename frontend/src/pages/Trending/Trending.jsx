@@ -4,6 +4,8 @@ import { articlesAPI, getProxiedImageUrl } from '../../services/api';
 import { formatRelativeTime } from '../../utils/dateUtils';
 import { ArticleCard } from '../../components/ArticleCard/ArticleCard';
 import { getDailyLayoutsForCategory, getLayoutRequirements } from '../../utils/layoutUtils';
+import Seo from '../../components/common/Seo';
+import { SITE_URL } from '../../utils/env';
 import './Trending.css';
 import '../Category/Category.css';
 
@@ -117,6 +119,38 @@ function Trending() {
 
   return (
     <div className="trending-page category-page">
+      <Seo
+        title="Trending Stories"
+        description="Track what the Sentinel Digest community is reading right now, updated throughout the day."
+        canonicalPath="/trending"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            name: 'Trending Stories | Sentinel Digest',
+            description: 'Trending stories and analysis from Sentinel Digest, refreshed daily.',
+            url: SITE_URL ? `${SITE_URL}/trending` : undefined,
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: SITE_URL || undefined,
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Trending Stories',
+                item: SITE_URL ? `${SITE_URL}/trending` : undefined,
+              },
+            ],
+          },
+        ]}
+      />
       <header className="trending-header category-header">
         <div className="category-header__container">
           <h1 className="category-header__title">Trending Stories</h1>
@@ -189,6 +223,8 @@ function Trending() {
                           <Link to={`/article/${article.slug}`} className="category-sidebar-link">
                             {featuredImageUrl && (
                               <img
+                                loading="lazy"
+                                decoding="async"
                                 src={featuredImageUrl}
                                 alt={imageAlt}
                                 className="category-sidebar-image"

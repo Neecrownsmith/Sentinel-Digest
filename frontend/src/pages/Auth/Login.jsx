@@ -3,11 +3,54 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { loginWithGoogle, loginWithFacebook, loginWithTwitter } from '../../utils/oauth';
 import './Auth.css';
+import Seo from '../../components/common/Seo';
+import { SITE_URL } from '../../utils/env';
 
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  const canonicalPath = '/login';
+  const structuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: 'Member Login',
+      description: 'Securely access your Sentinel Digest account to personalize your reading experience and manage saved content.',
+      url: SITE_URL ? `${SITE_URL}${canonicalPath}` : undefined,
+      isPartOf: SITE_URL
+        ? {
+            '@type': 'WebSite',
+            name: 'Sentinel Digest',
+            url: SITE_URL,
+          }
+        : undefined,
+      potentialAction: SITE_URL
+        ? {
+            '@type': 'LoginAction',
+            target: `${SITE_URL}${canonicalPath}`,
+          }
+        : undefined,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: SITE_URL || undefined,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Login',
+          item: SITE_URL ? `${SITE_URL}${canonicalPath}` : undefined,
+        },
+      ],
+    },
+  ];
   
   const [formData, setFormData] = useState({
     email: '',
@@ -100,8 +143,16 @@ function Login() {
   }
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
+    <>
+      <Seo
+        title="Login"
+        description="Sign in to Sentinel Digest to access curated insights, manage alerts, and continue where you left off."
+        canonicalPath={canonicalPath}
+        noIndex
+        jsonLd={structuredData}
+      />
+      <div className="auth-page">
+        <div className="auth-container">
         <div className="auth-box">
           <div className="auth-header">
             <h1>Welcome Back</h1>
@@ -231,6 +282,7 @@ function Login() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

@@ -5,6 +5,8 @@ import { OpportunityCard, OpportunityCardCompact } from '../../components/Opport
 import { opportunityCategories } from '../../config/navigation';
 import logger from '../../utils/logger';
 import './Opportunities.css';
+import Seo from '../../components/common/Seo';
+import { SITE_URL } from '../../utils/env';
 
 const RESULTS_PER_PAGE = 10;
 const CLOSING_SOON_LIMIT = 3;
@@ -393,9 +395,93 @@ function Opportunities() {
     );
   }
 
+  const displayCategoryName = category?.name || category?.title || (categorySlug ? categorySlug.replace(/-/g, ' ') : '');
+  const pluralCategory = displayCategoryName ? pluralizeCategory(displayCategoryName) : 'Opportunities';
+  const categorySummary = categorySlug ? getCategorySummary(categorySlug) : CATEGORY_SUMMARIES.default;
+  const canonicalPath = categorySlug ? `/opportunities/${categorySlug}` : '/opportunities';
+  const seoTitle = categorySlug ? pluralCategory : 'Opportunities';
+
+  const jobsSchema = jobs.slice(0, 10)
+    .map((job) => {
+      if (!job || !job.slug) {
+        return null;
+      }
+      return {
+        '@type': 'JobPosting',
+        title: job.role,
+        description: job.description ? job.description.slice(0, 280) : undefined,
+        datePosted: job.created_at,
+        validThrough: job.deadline || undefined,
+        employmentType: job.job_type || undefined,
+        hiringOrganization: job.company_name
+          ? {
+              '@type': 'Organization',
+              name: job.company_name,
+              sameAs: job.company_url || undefined,
+            }
+          : undefined,
+        jobLocation: job.location
+          ? {
+              '@type': 'Place',
+              address: {
+                '@type': 'PostalAddress',
+                addressLocality: job.location,
+              },
+            }
+          : undefined,
+        identifier: job.id,
+        url: SITE_URL ? `${SITE_URL}/opportunity/${job.slug}` : undefined,
+      };
+    })
+    .filter(Boolean);
+
+  const collectionSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: categorySlug ? `${pluralCategory} | Sentinel Digest` : 'Opportunities | Sentinel Digest',
+    description: categorySummary,
+    url: SITE_URL ? `${SITE_URL}${canonicalPath}` : undefined,
+    mainEntity: jobsSchema,
+  };
+
+  const breadcrumbsSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: SITE_URL || undefined,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Opportunities',
+        item: SITE_URL ? `${SITE_URL}/opportunities` : undefined,
+      },
+      categorySlug && {
+        '@type': 'ListItem',
+        position: 3,
+        name: pluralCategory,
+        item: SITE_URL ? `${SITE_URL}${canonicalPath}` : undefined,
+      },
+    ].filter(Boolean),
+  };
+
+  const seoNode = (
+    <Seo
+      title={seoTitle}
+      description={categorySummary}
+      canonicalPath={canonicalPath}
+      jsonLd={[collectionSchema, breadcrumbsSchema]}
+    />
+  );
+
   if (loading) {
     return (
       <div className="opportunities-loading">
+        {seoNode}
         <div className="spinner"></div>
         <p>Loading opportunities...</p>
       </div>
@@ -405,6 +491,7 @@ function Opportunities() {
   if (error) {
     return (
       <div className="opportunities-error">
+        {seoNode}
         <h2>{error}</h2>
         <p>Please try again later or browse all opportunities.</p>
       </div>
@@ -413,11 +500,12 @@ function Opportunities() {
 
   return (
     <div className="opportunities-page">
+      {seoNode}
       <header className="opportunities-header">
         <div className="opportunities-header__container">
           <div className="opportunities-header__title-row">
             <h1 className="opportunities-header__title">
-              {category ? pluralizeCategory(category.name) : 'All Opportunities'}
+              {category ? pluralCategory : 'All Opportunities'}
             </h1>
             {categorySlug && (
               <Link to="/opportunities" className="opportunities-header__view-all">

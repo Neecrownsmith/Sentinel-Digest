@@ -4,6 +4,22 @@ import { articlesAPI, getProxiedImageUrl } from '../../services/api';
 import { ArticleCardCompact } from '../../components/ArticleCard/ArticleCard';
 import { formatDateTime } from '../../utils/dateUtils';
 import { useAuth } from '../../context/AuthContext';
+import Seo from '../../components/common/Seo';
+import { SITE_URL } from '../../utils/env';
+
+function resolveImageUrl(src) {
+  if (!src) {
+    return '';
+  }
+  if (/^https?:\/\//i.test(src)) {
+    return src;
+  }
+  if (!SITE_URL) {
+    return src;
+  }
+  const normalized = src.startsWith('/') ? src : `/${src}`;
+  return `${SITE_URL.replace(/\/$/, '')}${normalized}`;
+}
 import './Article.css';
 
 function Article() {
@@ -300,7 +316,7 @@ function Article() {
         const imgCaption = image.caption || '';
         html += `
           <figure class="article-image-inline">
-              <img src="${imgSrc}" alt="${imgAlt}"
+              <img loading="lazy" decoding="async" src="${imgSrc}" alt="${imgAlt}"
                    onerror="if(!this.dataset.proxied){this.dataset.proxied='true';this.src='${getProxiedImageUrl(imgSrc).replace(/'/g, "\\'")}'}else{this.style.display='none';}" />
             ${imgCaption ? `<figcaption>${imgCaption}</figcaption>` : ''}
           </figure>
@@ -330,8 +346,69 @@ function Article() {
     );
   }
 
+  const articleImage = article.featured_image?.url || article.featured_image || '';
+  const canonicalPath = `/article/${article.slug}`;
+  const categoryName = typeof article.category === 'object' ? article.category?.name : article.category;
+  const categorySlug = typeof article.category === 'object' ? article.category?.slug : article.category_slug;
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    description: article.excerpt || article.summary || '',
+    image: articleImage ? [resolveImageUrl(articleImage)] : undefined,
+    datePublished: article.created_at,
+    dateModified: article.updated_at || article.created_at,
+    author: article.author
+      ? {
+          '@type': 'Person',
+          name: article.author.name || article.author,
+        }
+      : undefined,
+    publisher: {
+      '@type': 'Organization',
+      name: 'Sentinel Digest',
+      logo: SITE_URL ? `${SITE_URL.replace(/\/$/, '')}/logo.png` : undefined,
+    },
+    mainEntityOfPage: SITE_URL ? `${SITE_URL}${canonicalPath}` : undefined,
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: SITE_URL || undefined,
+      },
+      categoryName && (
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: categoryName,
+          item: SITE_URL && categorySlug ? `${SITE_URL}/category/${categorySlug}` : undefined,
+        }
+      ),
+      {
+        '@type': 'ListItem',
+        position: categoryName ? 3 : 2,
+        name: article.title,
+        item: SITE_URL ? `${SITE_URL}${canonicalPath}` : undefined,
+      },
+    ].filter(Boolean),
+  };
+
   return (
     <article className="article-page">
+      <Seo
+        title={article.title}
+        description={article.excerpt || article.summary || article.plain_text || ''}
+        canonicalPath={canonicalPath}
+        image={articleImage}
+        type="article"
+        jsonLd={[articleJsonLd, breadcrumbJsonLd]}
+      />
       {/* Article Header */}
       <header className="article-header">
         <div className="article-header__container">
@@ -380,6 +457,8 @@ function Article() {
       {article.featured_image && (
         <div className="article-featured-image">
           <img 
+            loading="lazy"
+            decoding="async"
             src={article.featured_image} 
             alt={article.title}
             onError={(e) => {

@@ -13,6 +13,7 @@ const OPTIONAL_ENV_VARS = [
   'VITE_GOOGLE_CLIENT_ID',
   'VITE_FACEBOOK_APP_ID',
   'VITE_TWITTER_CLIENT_ID',
+  'VITE_SITE_URL',
 ];
 
 /**
@@ -117,10 +118,18 @@ export function getApiConfig() {
   };
 }
 
+export const SITE_URL = getEnv(
+  'VITE_SITE_URL',
+  typeof window !== 'undefined' && window.location
+    ? `${window.location.protocol}//${window.location.host}`
+    : ''
+);
+
 export default {
   validateEnv,
   initEnv,
   getEnv,
   getOAuthStatus,
-  getApiConfig
+  getApiConfig,
+  SITE_URL
 };

@@ -12,6 +12,13 @@ Modern React + Vite frontend for the Sentinel Digest news platform with advanced
 
 ## Features
 
+### SEO Enhancements
+- Centralized `<Seo>` component powered by `react-helmet-async` for unique titles, descriptions, and robots directives per route
+- Canonical URL support via `VITE_SITE_URL` with automatic Open Graph and Twitter card population
+- JSON-LD structured data for key templates (Organization, WebSite, WebPage, Article, CollectionPage, SearchResultsPage, JobPosting, ProfilePage, BreadcrumbList)
+- Lazy loading on article and opportunity imagery to reduce LCP
+- Default metadata and social previews defined in `index.html`
+
 ### User Features
 - Browse articles by category and tags
 - Search functionality with real-time results
@@ -92,6 +99,7 @@ frontend/
    Create `.env` file in root directory:
    ```env
    VITE_API_BASE_URL=http://localhost:8000/api
+   VITE_SITE_URL=http://localhost:5173
 
    ```
 
@@ -114,6 +122,7 @@ frontend/
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `VITE_API_BASE_URL` | API endpoint base URL | `http://localhost:8000/api` |
+| `VITE_SITE_URL` | Public origin used for canonical links and structured data | `http://localhost:5173` |
 
 
 ## Key Components

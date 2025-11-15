@@ -5,6 +5,8 @@ import { jobsAPI } from '../../services/api';
 import { OpportunityCardCompact } from '../../components/OpportunityCard/OpportunityCard';
 import { formatDateTime } from '../../utils/dateUtils';
 import logger from '../../utils/logger';
+import Seo from '../../components/common/Seo';
+import { SITE_URL } from '../../utils/env';
 import './JobDetail.css';
 
 function JobDetail() {
@@ -174,14 +176,90 @@ function JobDetail() {
     );
   }
 
+  const canonicalPath = `/opportunity/${slug}`;
+  const jobImage = job.company_logo || job.company_image || '';
+  const jobJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'JobPosting',
+    title: job.role,
+    description: job.description ? job.description.slice(0, 320) : undefined,
+    datePosted: job.created_at,
+    validThrough: job.deadline || undefined,
+    employmentType: job.job_type || undefined,
+    jobLocation: job.location
+      ? {
+          '@type': 'Place',
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: job.location,
+          },
+        }
+      : undefined,
+    hiringOrganization: job.company_name
+      ? {
+          '@type': 'Organization',
+          name: job.company_name,
+          sameAs: job.company_url || undefined,
+          logo: jobImage && SITE_URL ? `${SITE_URL.replace(/\/$/, '')}${jobImage.startsWith('/') ? jobImage : `/${jobImage}`}` : undefined,
+        }
+      : undefined,
+    identifier: job.id,
+    url: SITE_URL ? `${SITE_URL}${canonicalPath}` : undefined,
+    industry: job.category?.name || undefined,
+    baseSalary: job.salary || undefined,
+  };
+
+  const breadcrumbsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: SITE_URL || undefined,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Opportunities',
+        item: SITE_URL ? `${SITE_URL}/opportunities` : undefined,
+      },
+      job.category && {
+        '@type': 'ListItem',
+        position: 3,
+        name: job.category.name,
+        item: SITE_URL && job.category.slug ? `${SITE_URL}/opportunities/${job.category.slug}` : undefined,
+      },
+      {
+        '@type': 'ListItem',
+        position: job.category ? 4 : 3,
+        name: job.role,
+        item: SITE_URL ? `${SITE_URL}${canonicalPath}` : undefined,
+      },
+    ].filter(Boolean),
+  };
+
+  const seoNode = (
+    <Seo
+      title={job.role}
+      description={job.description ? job.description.slice(0, 155) : `${job.role} at ${job.company_name}`}
+      canonicalPath={canonicalPath}
+      image={jobImage}
+      type="job"
+      jsonLd={[jobJsonLd, breadcrumbsJsonLd]}
+    />
+  );
+
   return (
     <div className="job-detail">
+      {seoNode}
       {/* Job Header */}
       <header className="job-header">
         <div className="job-header__container">
           {job.company_logo && (
             <div className="job-header__logo">
-              <img src={job.company_logo} alt={job.company_name} />
+              <img loading="lazy" decoding="async" src={job.company_logo} alt={job.company_name} />
             </div>
           )}
 

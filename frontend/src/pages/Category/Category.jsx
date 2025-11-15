@@ -3,6 +3,8 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { articlesAPI, categoriesAPI, getProxiedImageUrl } from '../../services/api';
 import { formatRelativeTime } from '../../utils/dateUtils';
 import { getDailyLayoutsForCategory, getLayoutRequirements } from '../../utils/layoutUtils';
+import Seo from '../../components/common/Seo';
+import { SITE_URL } from '../../utils/env';
 import './Category.css';
 
 // Allocate articles deterministically: fill primary, then secondary, then more
@@ -216,8 +218,55 @@ function Category() {
     );
   }
 
+  const canonicalPath = `/category/${slug}`;
+  const categoryJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${category.name} News | Sentinel Digest`,
+    description: category.description || `Latest insights and articles in the ${category.name} category from Sentinel Digest.`,
+    url: SITE_URL ? `${SITE_URL}${canonicalPath}` : undefined,
+    mainEntity: articles.slice(0, 12)
+      .map((item) => {
+        if (!item || !item.slug) {
+          return null;
+        }
+        return {
+          '@type': 'NewsArticle',
+          headline: item.title,
+          url: SITE_URL ? `${SITE_URL}/article/${item.slug}` : undefined,
+          datePublished: item.created_at,
+        };
+      })
+      .filter(Boolean),
+  };
+
+  const breadcrumbsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: SITE_URL || undefined,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: category.name,
+        item: SITE_URL ? `${SITE_URL}${canonicalPath}` : undefined,
+      },
+    ],
+  };
+
   return (
     <div className="category-page">
+      <Seo
+        title={category.name}
+        description={category.description || `Discover the latest stories, analysis, and updates about ${category.name} from Sentinel Digest.`}
+        canonicalPath={canonicalPath}
+        jsonLd={[categoryJsonLd, breadcrumbsJsonLd]}
+      />
       {/* Category Header */}
       <header className="category-header">
         <div className="category-header__container">
@@ -262,6 +311,8 @@ function Category() {
                           <a href={`/article/${article.slug}`} className="category-sidebar-link">
                             {featuredImageUrl && (
                               <img 
+                                loading="lazy"
+                                decoding="async"
                                 src={featuredImageUrl} 
                                 alt={article.featured_image?.alt_text || article.title}
                                 className="category-sidebar-image"
@@ -299,6 +350,8 @@ function Category() {
                           <a href={`/article/${article.slug}`} className="category-sidebar-link">
                             {featuredImageUrl && (
                               <img 
+                                loading="lazy"
+                                decoding="async"
                                 src={featuredImageUrl} 
                                 alt={article.featured_image?.alt_text || article.title}
                                 className="category-sidebar-image"

@@ -31,6 +31,8 @@ function OpportunityCard({ opportunity, featured = false }) {
       {opportunity.company_logo && (
         <div className="opportunity-card__logo-wrapper">
           <img 
+            loading="lazy"
+            decoding="async"
             src={opportunity.company_logo} 
             alt={opportunity.company_name}
             className="opportunity-card__logo"
@@ -119,6 +121,8 @@ function OpportunityCardCompact({ opportunity, showLogo = true, showCategory = t
       {showLogo && opportunity.company_logo && (
         <div className="opportunity-card-compact__logo-wrapper">
           <img 
+            loading="lazy"
+            decoding="async"
             src={opportunity.company_logo} 
             alt={opportunity.company_name}
             className="opportunity-card-compact__logo"
@@ -163,6 +167,8 @@ function OpportunityCardHero({ opportunity }) {
         <div className="opportunity-card-hero__content">
           {opportunity.company_logo && (
             <img 
+              loading="lazy"
+              decoding="async"
               src={opportunity.company_logo} 
               alt={opportunity.company_name}
               className="opportunity-card-hero__logo"
