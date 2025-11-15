@@ -13,7 +13,10 @@ import './HShapedHeroLayout.css';
  * - Two sidebar sections below
  */
 function HShapedHeroLayout({ articles }) {
-  if (!articles || articles.length === 0) {
+  // Filter out any undefined/null articles
+  const validArticles = (articles || []).filter(article => article != null);
+  
+  if (validArticles.length === 0) {
     return (
       <div className="layout-empty">
         <p>No articles available</p>
@@ -21,11 +24,11 @@ function HShapedHeroLayout({ articles }) {
     );
   }
 
-  const topArticle = articles[0];
-  const leftArticles = articles.slice(1, 6);
-  const centerArticles = articles.slice(6, 11);
-  const rightArticles = articles.slice(11, 16);  
-  const bottomArticle = articles[16];
+  const topArticle = validArticles[0];
+  const leftArticles = validArticles.slice(1, 6);
+  const centerArticles = validArticles.slice(6, 11);
+  const rightArticles = validArticles.slice(11, 16);  
+  const bottomArticle = validArticles[16];
 
   return (
     <div className="h-shaped-layout">

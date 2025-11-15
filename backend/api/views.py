@@ -29,7 +29,7 @@ from .serializers import (
     SocialMediaPostSerializer,
 )
 from .filters import ArticleFilter
-from .pagination import ArticlePagination
+from .pagination import ArticlePagination, OverlappingPagination
 
 
 # Custom Token Serializer that accepts both email and username
@@ -125,6 +125,22 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['-created_at']
     lookup_field = 'slug'
     
+    def get_paginator(self):
+        """
+        Use OverlappingPagination if 'step' parameter is present,
+        otherwise use default ArticlePagination
+        """
+        # Debug logging
+        print(f"Query Params: {dict(self.request.query_params)}")
+        
+        if 'step' in self.request.query_params or 'offset' in self.request.query_params:
+            self.pagination_class = OverlappingPagination
+            print(f"Using OverlappingPagination")
+        else:
+            self.pagination_class = ArticlePagination
+            print(f"Using ArticlePagination (default page_size=20)")
+        return super().get_paginator()
+    
     def get_serializer_class(self):
         """Use detailed serializer for single article, list serializer for multiple"""
         if self.action == 'retrieve':
@@ -139,6 +155,54 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
         self.track_view(request, instance)
         
         serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def list(self, request, *args, **kwargs):
+        """List articles with optional overlapping pagination and smart backfill.
+
+        When the client uses overlapping pagination (presence of 'step' or 'offset'),
+        if the slice for this page returns fewer than 'limit' items, we backfill
+        with additional relevant articles (prefer same category when requested),
+        excluding already selected IDs, ordered by trending-related fields.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            results = list(page)
+
+            # Only apply backfill behavior for overlapping pagination usage
+            qp = request.query_params
+            limit_param = qp.get('limit')
+            use_overlap = ('step' in qp) or ('offset' in qp)
+
+            try:
+                limit = int(limit_param) if limit_param is not None else None
+            except (TypeError, ValueError):
+                limit = None
+
+            if use_overlap and limit and len(results) < limit:
+                deficit = limit - len(results)
+                seen_ids = [a.id for a in results]
+
+                # Prefer backfill within requested category if provided
+                category_slug = qp.get('category')
+                fallback_qs = Article.objects.filter(status='published')
+                if category_slug:
+                    fallback_qs = fallback_qs.filter(category__slug=category_slug)
+                if seen_ids:
+                    fallback_qs = fallback_qs.exclude(id__in=seen_ids)
+
+                # Order by trending cues, then recency as tie-breakers
+                fallback_qs = fallback_qs.order_by('-trending_score', '-view_count', '-created_at')[:deficit]
+
+                results.extend(list(fallback_qs))
+
+            serializer = self.get_serializer(results, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        # Fallback (no pagination)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
     def track_view(self, request, article):

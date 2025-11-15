@@ -90,7 +90,7 @@
 }
 
 /* Pagination */
-.pagination {
+.opportunities-page .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -99,7 +99,7 @@
   padding: 2rem 0;
 }
 
-.pagination__button {
+.opportunities-page .pagination__button {
   padding: 0.75rem 1.5rem;
   background: #000;
   color: #fff;
@@ -109,21 +109,19 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
-}
-
-.pagination__button:hover:not(:disabled) {
+.opportunities-page .pagination__button:hover:not(:disabled) {
   background: #333;
   transform: translateY(-1px);
 }
 
-.pagination__button:disabled {
+.opportunities-page .pagination__button:disabled {
   background: #e0e0e0;
   color: #999;
   cursor: not-allowed;
   transform: none;
 }
 
-.pagination__info {
+.opportunities-page .pagination__info {
   font-size: 0.938rem;
   font-weight: 500;
   color: #333;
@@ -175,12 +173,12 @@
     gap: 1.5rem;
   }
 
-  .pagination {
+  .opportunities-page .pagination {
     flex-direction: column;
     gap: 1rem;
   }
 
-  .pagination__button {
+  .opportunities-page .pagination__button {
     width: 100%;
     max-width: 300px;
   }

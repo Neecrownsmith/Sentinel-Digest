@@ -102,8 +102,31 @@ export const articlesAPI = {
     api.get('/articles/related/', { params: { article_id: articleId, limit } }),
   
   // Get articles by category
-  getByCategory: (categorySlug, page = 1) => 
-    api.get('/articles/', { params: { category: categorySlug, page } }),
+  getByCategory: (categorySlug, page = 1, limit = null, step = null) => {
+    console.log('getByCategory called with:', { categorySlug, page, limit, step });
+    
+    const params = { 
+      category: categorySlug,
+    };
+    
+    // Use offset-based pagination if limit and step are provided
+    if (limit && step) {
+      params.offset = (page - 1) * step;
+      params.limit = limit;
+      params.step = step;
+      console.log('Using OverlappingPagination:', params);
+    } else {
+      // Use standard page-based pagination
+      params.page = page;
+      if (limit) {
+        params.page_size = limit;
+      }
+      console.log('Using ArticlePagination:', params);
+    }
+    
+    console.log('Final API call params:', params);
+    return api.get('/articles/', { params });
+  },
   
   // Get articles by tag
   getByTag: (tagSlug, page = 1) => 

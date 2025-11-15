@@ -6,6 +6,12 @@ import './ArticleCard.css';
 
 // Full-featured article card
 function ArticleCard({ article, featured = false, showExcerpt = true }) {
+  // Add safety check for undefined article
+  if (!article) {
+    console.warn('ArticleCard received undefined article');
+    return null;
+  }
+  
   // Handle featured_image which can be an object or null
   const featuredImageUrl = article.featured_image?.url || article.featured_image;
   const imageAlt = article.featured_image?.alt_text || article.title;
