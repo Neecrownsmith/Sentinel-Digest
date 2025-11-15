@@ -107,7 +107,8 @@ try:
                 description=scraped_data.get('description', ''),
                 category=category,
                 source_url=scraped_job_obj,
-                apply_link=scraped_data.get('apply_link', '')
+                apply_link=scraped_data.get('apply_link', ''),
+                deadline=scraped_data.get('deadline', None)
             )
 
             # Encode job for similarity checking

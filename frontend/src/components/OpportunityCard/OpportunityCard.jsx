@@ -3,8 +3,29 @@ import { Link } from 'react-router-dom';
 import { formatRelativeTime } from '../../utils/dateUtils';
 import './OpportunityCard.css';
 
+const deadlineFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+
+function formatDeadline(dateInput) {
+  if (!dateInput) {
+    return null;
+  }
+
+  const parsed = new Date(dateInput);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return deadlineFormatter.format(parsed);
+}
+
 // Full-featured opportunity card
 function OpportunityCard({ opportunity, featured = false }) {
+  const formattedDeadline = formatDeadline(opportunity.deadline);
+
   return (
     <article className={`opportunity-card ${featured ? 'opportunity-card--featured' : ''}`}>
       {opportunity.company_logo && (
@@ -67,9 +88,9 @@ function OpportunityCard({ opportunity, featured = false }) {
           <time className="opportunity-card__date" dateTime={opportunity.created_at}>
             Posted {formatRelativeTime(opportunity.created_at)}
           </time>
-          {opportunity.deadline && (
+          {formattedDeadline && (
             <span className="opportunity-card__deadline">
-              Deadline: {new Date(opportunity.deadline).toLocaleDateString()}
+              Deadline: {formattedDeadline}
             </span>
           )}
         </div>

@@ -5,6 +5,7 @@ import os
 import sys
 import django
 from dotenv import load_dotenv
+import re
 
 load_dotenv()
 
@@ -18,9 +19,49 @@ django.setup()
 
 from jobs.models import Job
 from scraper.models import ScrapedJob
+from dateutil import parser
 
 
 
+
+
+def extract_dates(text):
+    date_regex = r"""
+        \b(
+            # ISO: 2024-05-10
+            (?:\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2})
+            |
+            # Numeric: 10/05/2024, 10-05-24
+            (?:\d{1,2}[-\/.]\d{1,2}[-\/.](?:\d{2}|\d{4}))
+            |
+            # Day Month Year: 10 May 2024, 10th May 24
+            (?:\d{1,2}(?:st|nd|rd|th)?\s+
+               (?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|
+                  May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|
+                  Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)
+               \s+\d{2,4}
+            )
+            |
+            # Month Day Year: May 10, 2024
+            (?:(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|
+                May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|
+                Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)
+                \s+\d{1,2}(?:st|nd|rd|th)?,?\s*\d{2,4}?
+            )
+        )\b
+    """
+
+    matches = re.findall(date_regex, text, flags=re.IGNORECASE | re.VERBOSE)
+    return [m[0] if isinstance(m, tuple) else m for m in matches]
+
+def parse_deadline(date_string):
+    if not date_string:
+        return None
+    try:
+        return parser.parse(date_string).date()
+    except:
+        return None
+    
 def parse_category(category_str):
     """Parse and normalize category string"""
     category_str = category_str.lower().strip()
@@ -119,11 +160,16 @@ def scrape_data(soup):
     markdown_list = [h.handle(el).strip() for el in html_elements]
     content = "\n\n".join(markdown_list)  # Use double newline for better spacing
     category = soup.find('div', class_='elementor-widget-container').text.strip().strip("/").strip().lower()
+
+
+    detected_dates = extract_dates(content)
+    deadline = detected_dates[-1] if detected_dates else None
     return {
         "role": role,
         "description": content,
         "category": parse_category(category),
-        "apply_link": apply_link  
+        "apply_link": apply_link,
+        "deadline": parse_deadline(deadline)
     }   
 
 

@@ -4,8 +4,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
+from django.utils import timezone
+from datetime import timedelta
 from .models import Job, Category
 from .serializers import JobSerializer, JobListSerializer, JobCategorySerializer
+from api.pagination import JobPagination
 
 
 class JobCategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -23,20 +26,32 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
     ViewSet for jobs with filtering, searching, and pagination
     """
     permission_classes = [AllowAny]
+    pagination_class = JobPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category__slug', 'status']
     search_fields = ['role', 'description']
-    ordering_fields = ['created_at', 'role']
+    ordering_fields = ['created_at', 'role', 'deadline']
     ordering = ['-created_at']
     lookup_field = 'slug'
 
     def get_queryset(self):
+        today = timezone.now().date()
         queryset = Job.objects.filter(status='published').select_related('category')
+        queryset = queryset.filter(Q(deadline__isnull=True) | Q(deadline__gte=today))
         
         # Filter by category if provided
         category_slug = self.request.query_params.get('category', None)
         if category_slug:
             queryset = queryset.filter(category__slug=category_slug)
+
+        close_deadline_param = self.request.query_params.get('close_deadline')
+        if close_deadline_param and str(close_deadline_param).lower() in {'1', 'true', 'yes', 'on'}:
+            limit_date = today + timedelta(days=7)
+            queryset = queryset.filter(
+                deadline__isnull=False,
+                deadline__gte=today,
+                deadline__lte=limit_date,
+            ).order_by('deadline', 'created_at')
         
         return queryset
 

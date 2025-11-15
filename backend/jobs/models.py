@@ -38,6 +38,7 @@ class Job(models.Model):
         related_name='jobs'
     )
     apply_link = models.URLField(max_length=500, null=True, blank=True)
+    deadline = models.DateField(null=True, blank=True)
    
     source_url = models.ForeignKey(
         ScrapedJob,
@@ -52,6 +53,7 @@ class Job(models.Model):
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     
     # Legacy fields
     is_published = models.BooleanField(default=True)  # Keep for backward compatibility

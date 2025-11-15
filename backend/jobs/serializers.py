@@ -21,6 +21,7 @@ class JobSerializer(serializers.ModelSerializer):
             'description',
             'category',
             'apply_link',
+            'deadline',
             'status',
             'created_at',
             'updated_at',
@@ -42,6 +43,7 @@ class JobListSerializer(serializers.ModelSerializer):
             'excerpt',
             'category',
             'apply_link',
+            'deadline',
             'created_at',
         ]
     

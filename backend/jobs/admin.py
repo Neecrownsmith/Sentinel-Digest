@@ -3,7 +3,7 @@ from .models import Job, Category
 # Register your models here.    
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ('role', 'category', 'created_at', 'updated_at')
+    list_display = ('role', 'category', 'created_at', 'updated_at','deadline', 'status')
     prepopulated_fields = {'slug': ('role',)}
     search_fields = ('role', 'content')
     list_filter = ('category', 'created_at', 'status')
