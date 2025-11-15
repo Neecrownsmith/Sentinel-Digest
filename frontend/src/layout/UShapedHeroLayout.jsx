@@ -20,7 +20,11 @@ function UShapedHeroLayout({ articles }) {
       </div>
     );
   }
-
+  const heroArticles = articles.slice(0, 3);
+  const leftArticles = articles.slice(3, 7);
+  const rightArticles = articles.slice(7, 11);
+  const bottomArticles = articles.slice(11, 15);
+  
   return (
     <div className="u-shaped-layout">
       <div className="u-shaped-layout__main">
@@ -30,7 +34,7 @@ function UShapedHeroLayout({ articles }) {
           <div className="u-shaped-top">
             {/* Left vertical bar */}
             <div className="u-shaped-left">
-              {articles.slice(4, 8).map((article) => (
+              {leftArticles.map((article) => (
                 <ArticleCardCompact
                   key={article.id}
                   article={article}
@@ -42,7 +46,7 @@ function UShapedHeroLayout({ articles }) {
 
             {/* Center hero - 3 cards (1x3) stacked vertically */}
             <div className="u-shaped-hero">
-              {articles.slice(0, 3).map((article) => (
+              {heroArticles.map((article) => (
                 <ArticleCardHero
                   key={article.id}
                   article={article}
@@ -53,7 +57,7 @@ function UShapedHeroLayout({ articles }) {
 
             {/* Right vertical bar */}
             <div className="u-shaped-right">
-              {articles.slice(8, 12).map((article) => (
+              {rightArticles.map((article) => (
                 <ArticleCardCompact
                   key={article.id}
                   article={article}
@@ -66,7 +70,7 @@ function UShapedHeroLayout({ articles }) {
 
           {/* Bottom horizontal bar (base of U) */}
           <div className="u-shaped-bottom">
-            {articles.slice(12, 16).map((article) => (
+            {bottomArticles.map((article) => (
               <ArticleCardCompact
                 key={article.id}
                 article={article}

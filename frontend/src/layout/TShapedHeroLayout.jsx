@@ -20,6 +20,13 @@ function TShapedHeroLayout({ articles }) {
     );
   }
 
+
+  const firstArticle = articles[0];
+  const heroArticles = articles.slice(1, 3);
+  const topArticles = articles.slice(3, 7);
+  const leftArticles = articles.slice(7, 10);
+  const rightArticles = articles.slice(10, 13);
+
   return (
     <div className="t-shaped-layout">
       <div className="t-shaped-layout__main">
@@ -27,7 +34,7 @@ function TShapedHeroLayout({ articles }) {
         <div className="t-shaped-container">
           {/* Top horizontal bar (the top of T) */}
           <div className="t-shaped-top">
-            {articles.slice(4, 8).map((article) => (
+            {topArticles.map((article) => (
               <ArticleCardCompact
                 key={article.id}
                 article={article}
@@ -41,7 +48,7 @@ function TShapedHeroLayout({ articles }) {
           <div className="t-shaped-middle">
             {/* Left spacer */}
             <div className="t-shaped-side-left">
-              {articles.slice(8, 11).map((article) => (
+              {leftArticles.map((article) => (
                 <ArticleCardCompact
                   key={article.id}
                   article={article}
@@ -52,11 +59,11 @@ function TShapedHeroLayout({ articles }) {
             </div>
             <div className="t-shaped-hero-wrapper">
               <div className="t-shaped-hero-1">
-                <ArticleCardHero article={articles[0]} />
+                <ArticleCardHero article={firstArticle} />
               </div>
               {/* Center hero - 2 cards (2x1) side by side */}
               <div className="t-shaped-hero">
-                {articles.slice(1, 3).map((article) => (
+                {heroArticles.map((article) => (
                   <ArticleCardVertical
                     key={article.id}
                     article={article}
@@ -68,7 +75,7 @@ function TShapedHeroLayout({ articles }) {
 
             {/* Right spacer */}
             <div className="t-shaped-side-right">
-              {articles.slice(11, 14).map((article) => (
+              {rightArticles.map((article) => (
                 <ArticleCardCompact
                   key={article.id}
                   article={article}
